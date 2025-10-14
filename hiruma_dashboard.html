@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヒルマ PLOリング成績ダッシュボード</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .positive {
+            color: #00ff88;
+        }
+
+        .stat-card .negative {
+            color: #ff6b6b;
+        }
+
+        .stat-card .neutral {
+            color: #00d4ff;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .chart-controls {
+            margin-bottom: 20px;
+        }
+
+        .chart-controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            color: #00d4ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .period-btn:hover, .period-btn.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+
+        .date-range-selector {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .date-input-group label {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .date-input:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .date-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+
+        .apply-date-btn {
+            padding: 8px 16px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            color: #00d4ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            align-self: flex-end;
+        }
+
+        .apply-date-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .chart {
+            height: 750px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .data-point {
+            fill: #eb5e1c;
+            stroke: #ffffff;
+            stroke-width: 3;
+            r: 6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .data-point:hover {
+            fill: #ff8c42;
+            r: 9;
+        }
+
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+        }
+
+        .axis-label {
+            fill: #a0a0a0;
+            font-size: 21px;
+            text-anchor: middle;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            transform: scale(1.1);
+        }
+
+        .data-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        th:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        th.sortable::after {
+            content: ' ↕';
+            opacity: 0.5;
+            font-size: 0.8em;
+        }
+
+        th.sort-asc::after {
+            content: ' ↑';
+            opacity: 1;
+            color: #00ff88;
+        }
+
+        th.sort-desc::after {
+            content: ' ↓';
+            opacity: 1;
+            color: #ff6b6b;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .result-positive {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .result-negative {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .result-neutral {
+            color: #ffffff;
+        }
+
+        .date-bold {
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .cashout-bold {
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .time-bold {
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .buyin-high {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .buyin-medium {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .buyin-low {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            color: #00d4ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .stat-card .value {
+                font-size: 1.5rem;
+            }
+            
+            .filters {
+                justify-content: center;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.2rem;
+            color: #a0a0a0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 212, 255, 0.3);
+            border-top: 4px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ヒルマ PLOリング成績ダッシュボード</h1>
+            <p>2025年1月7日〜2025年10月12日</p>
+            <p>MUSASHI POKER ROOM 渋谷本店</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>累計結果</h3>
+                <div class="value positive">+4,665.5bb</div>
+                <p>総利益</p>
+            </div>
+            <div class="stat-card">
+                <h3>総セッション数</h3>
+                <div class="value neutral">82</div>
+                <p>セッション</p>
+            </div>
+            <div class="stat-card">
+                <h3>勝率</h3>
+                <div class="value positive">60%</div>
+                <p>49勝 / 33負</p>
+            </div>
+            <div class="stat-card">
+                <h3>累計プレイ時間</h3>
+                <div class="value neutral">301.8h</div>
+                <p>時間</p>
+            </div>
+            <div class="stat-card">
+                <h3>平均時給</h3>
+                <div class="value positive">15.5bb/h</div>
+                <p>時給</p>
+            </div>
+            <div class="stat-card">
+                <h3>最高勝ち</h3>
+                <div class="value positive">+531bb</div>
+                <p>8月24日</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-controls-row">
+                <div class="chart-title">セッション別成績推移</div>
+            </div>
+            <div class="chart-controls">
+                <div class="chart-controls-row">
+                    <div class="period-selector">
+                        <button class="period-btn active" onclick="setPeriod('all')">全期間</button>
+                        <button class="period-btn" onclick="setPeriod('p1')">1-2月</button>
+                        <button class="period-btn" onclick="setPeriod('p2')">3-4月</button>
+                        <button class="period-btn" onclick="setPeriod('p3')">5-6月</button>
+                        <button class="period-btn" onclick="setPeriod('p4')">7-8月</button>
+                        <button class="period-btn" onclick="setPeriod('p5')">9-10月</button>
+                    </div>
+                     <div class="date-range-selector">
+                         <div class="date-input-group">
+                             <input type="date" id="startDate" class="date-input" value="2025-01-07">
+                         </div>
+                         <div class="date-input-group">
+                             <input type="date" id="endDate" class="date-input" value="2025-10-12">
+                         </div>
+                         <button class="apply-date-btn" onclick="applyDateRange()">
+                             適用
+                         </button>
+                     </div>
+                </div>
+            </div>
+            <div class="chart">
+                <svg id="lineChart" width="100%" height="100%" viewBox="0 0 2100 1125">
+                    <defs>
+                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#eb5e1c;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#eb5e1c;stop-opacity:0" />
+                        </linearGradient>
+                    </defs>
+                    <!-- グリッド線 -->
+                    <g id="gridLines"></g>
+                    <!-- エリア -->
+                    <path id="areaPath" fill="url(#lineGradient)" stroke="none"/>
+                    <!-- ライン -->
+                    <path id="linePath" fill="none" stroke="#eb5e1c" stroke-width="6" stroke-linecap="round"/>
+                    <!-- データポイント -->
+                    <g id="dataPoints"></g>
+                    <!-- 軸ラベル -->
+                    <g id="axisLabels"></g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <div class="table-title">セッション詳細データ</div>
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterData('all')">全て</button>
+                <button class="filter-btn" onclick="filterData('positive')">勝ちセッション</button>
+                <button class="filter-btn" onclick="filterData('negative')">負けセッション</button>
+            </div>
+            <table id="sessionTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="date">日付</th>
+                        <th class="sortable" data-sort="buyin">バイイン</th>
+                        <th class="sortable" data-sort="cashout">キャッシュアウト</th>
+                        <th class="sortable" data-sort="result">結果</th>
+                        <th class="sortable" data-sort="time">プレイ時間</th>
+                        <th class="sortable" data-sort="cumulative">累計結果</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionTableBody">
+                    <!-- データはJavaScriptで動的に挿入 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // CSVデータ（簡略化版）
+        const sessionData = [
+            {date: '2025-01-07', buyin: 400, cashout: 538, result: 138, time: 3.21, cumulative: 138},
+            {date: '2025-01-07', buyin: 400, cashout: 274, result: -126, time: 2.28, cumulative: 12},
+            {date: '2025-01-10', buyin: 400, cashout: 956, result: 556, time: 2.04, cumulative: 568},
+            {date: '2025-01-19', buyin: 400, cashout: 1097, result: 697, time: 9.66, cumulative: 1265},
+            {date: '2025-01-21', buyin: 400, cashout: 393, result: -7, time: 2.68, cumulative: 1258},
+            {date: '2025-01-24', buyin: 400, cashout: 1164, result: 764, time: 2.96, cumulative: 2022},
+            {date: '2025-01-31', buyin: 400, cashout: 1526, result: 1126, time: 2.73, cumulative: 3148},
+            {date: '2025-02-02', buyin: 400, cashout: 557, result: 157, time: 9.65, cumulative: 3305},
+            {date: '2025-02-07', buyin: 400, cashout: 628, result: 228, time: 2.91, cumulative: 3533},
+            {date: '2025-02-09', buyin: 400, cashout: 596, result: 196, time: 2.76, cumulative: 3729},
+            {date: '2025-02-11', buyin: 400, cashout: 575, result: 175, time: 4.93, cumulative: 3904},
+            {date: '2025-02-14', buyin: 400, cashout: 649, result: 249, time: 2.78, cumulative: 4153},
+            {date: '2025-02-16', buyin: 400, cashout: 711, result: 311, time: 6.08, cumulative: 4464},
+            {date: '2025-02-16', buyin: 400, cashout: 348, result: -52, time: 0.58, cumulative: 4412},
+            {date: '2025-02-23', buyin: 400, cashout: 270, result: -130, time: 2.46, cumulative: 4282},
+            {date: '2025-02-25', buyin: 400, cashout: 425, result: 25, time: 3.18, cumulative: 4307},
+            {date: '2025-02-28', buyin: 400, cashout: 673, result: 273, time: 3.45, cumulative: 4580},
+            {date: '2025-03-02', buyin: 400, cashout: 181, result: -219, time: 8.15, cumulative: 4361},
+            {date: '2025-03-04', buyin: 400, cashout: 407, result: 7, time: 3.23, cumulative: 4368},
+            {date: '2025-03-07', buyin: 400, cashout: 423, result: 23, time: 2.41, cumulative: 4391},
+            {date: '2025-03-09', buyin: 400, cashout: 738, result: 338, time: 6.6, cumulative: 4729},
+            {date: '2025-03-11', buyin: 400, cashout: 316, result: -84, time: 2.7, cumulative: 4645},
+            {date: '2025-03-14', buyin: 400, cashout: 511, result: 111, time: 2.1, cumulative: 4756},
+            {date: '2025-03-16', buyin: 800, cashout: 182, result: -618, time: 3.55, cumulative: 4138},
+            {date: '2025-03-21', buyin: 400, cashout: 528, result: 128, time: 2.18, cumulative: 4266},
+            {date: '2025-03-23', buyin: 400, cashout: 403, result: 3, time: 4.28, cumulative: 4269},
+            {date: '2025-03-28', buyin: 800, cashout: 277, result: -523, time: 2.63, cumulative: 3746},
+            {date: '2025-03-30', buyin: 400, cashout: 436, result: 36, time: 1.93, cumulative: 3782},
+            {date: '2025-03-30', buyin: 400, cashout: 367, result: -33, time: 3.26, cumulative: 3749},
+            {date: '2025-04-01', buyin: 400, cashout: 536, result: 136, time: 2.86, cumulative: 3885},
+            {date: '2025-04-04', buyin: 400, cashout: 207, result: -193, time: 2.71, cumulative: 3692},
+            {date: '2025-04-06', buyin: 400, cashout: 639, result: 239, time: 9.21, cumulative: 3931},
+            {date: '2025-04-13', buyin: 1050, cashout: 391, result: -659, time: 7, cumulative: 3272},
+            {date: '2025-04-15', buyin: 400, cashout: 292, result: -108, time: 2.61, cumulative: 3164},
+            {date: '2025-04-22', buyin: 400, cashout: 458, result: 58, time: 2.11, cumulative: 3222},
+            {date: '2025-05-09', buyin: 400, cashout: 83, result: -317, time: 3.13, cumulative: 2905},
+            {date: '2025-05-11', buyin: 400, cashout: 435, result: 35, time: 3.36, cumulative: 2940},
+            {date: '2025-05-18', buyin: 450, cashout: 695, result: 245, time: 4.09, cumulative: 3185},
+            {date: '2025-05-20', buyin: 450, cashout: 342, result: -108, time: 1.8, cumulative: 3077},
+            {date: '2025-05-25', buyin: 450, cashout: 492, result: 42, time: 2.58, cumulative: 3119},
+            {date: '2025-05-27', buyin: 450, cashout: 732, result: 282, time: 2.23, cumulative: 3401},
+            {date: '2025-05-30', buyin: 450, cashout: 143, result: -307, time: 3.38, cumulative: 3094},
+            {date: '2025-06-03', buyin: 700, cashout: 625, result: -75, time: 2.83, cumulative: 3019},
+            {date: '2025-06-06', buyin: 450, cashout: 689, result: 239, time: 2.48, cumulative: 3258},
+            {date: '2025-06-08', buyin: 450, cashout: 494, result: 44, time: 5.08, cumulative: 3302},
+            {date: '2025-06-13', buyin: 450, cashout: 863, result: 413, time: 2.54, cumulative: 3715},
+            {date: '2025-06-20', buyin: 450, cashout: 393, result: -57, time: 1.01, cumulative: 3658},
+            {date: '2025-06-20', buyin: 450, cashout: 434, result: -16, time: 0.9, cumulative: 3642},
+            {date: '2025-06-22', buyin: 750, cashout: 339, result: -411, time: 4.86, cumulative: 3231},
+            {date: '2025-06-27', buyin: 450, cashout: 397, result: -53, time: 0.48, cumulative: 3178},
+            {date: '2025-06-29', buyin: 850, cashout: 404, result: -446, time: 7.58, cumulative: 2732},
+            {date: '2025-07-04', buyin: 450, cashout: 476, result: 26, time: 3.08, cumulative: 2758},
+            {date: '2025-07-06', buyin: 450, cashout: 1010, result: 560, time: 2.96, cumulative: 3318},
+            {date: '2025-07-08', buyin: 450, cashout: 735, result: 285, time: 2.28, cumulative: 3603},
+            {date: '2025-07-11', buyin: 450, cashout: 542, result: 92, time: 1.58, cumulative: 3695},
+            {date: '2025-07-13', buyin: 600, cashout: 769, result: 169, time: 3.91, cumulative: 3864},
+            {date: '2025-07-15', buyin: 450, cashout: 1233, result: 783, time: 4.3, cumulative: 4647},
+            {date: '2025-07-18', buyin: 450, cashout: 418, result: -32, time: 2.35, cumulative: 4615},
+            {date: '2025-07-20', buyin: 450, cashout: 739, result: 289, time: 4.31, cumulative: 4904},
+            {date: '2025-07-22', buyin: 450, cashout: 949, result: 499, time: 4.01, cumulative: 5403},
+            {date: '2025-07-25', buyin: 450, cashout: 900, result: 450, time: 2.35, cumulative: 5853},
+            {date: '2025-07-27', buyin: 750, cashout: 849, result: 99, time: 4.59, cumulative: 5952},
+            {date: '2025-08-03', buyin: 450, cashout: 801, result: 351, time: 3.81, cumulative: 6303},
+            {date: '2025-08-08', buyin: 450, cashout: 634, result: 184, time: 3.03, cumulative: 6487},
+            {date: '2025-08-10', buyin: 900, cashout: 705, result: -195, time: 7.48, cumulative: 6292},
+            {date: '2025-08-12', buyin: 450, cashout: 744, result: 294, time: 2.56, cumulative: 6586},
+            {date: '2025-08-15', buyin: 450, cashout: 1280, result: 830, time: 2.5, cumulative: 7416},
+            {date: '2025-08-17', buyin: 450, cashout: 339, result: -111, time: 3.63, cumulative: 7305},
+            {date: '2025-08-22', buyin: 450, cashout: 921, result: 471, time: 0.91, cumulative: 7776},
+            {date: '2025-08-24', buyin: 650, cashout: 1712, result: 1062, time: 4.03, cumulative: 8838},
+            {date: '2025-08-29', buyin: 450, cashout: 670, result: 220, time: 2.04, cumulative: 9058},
+            {date: '2025-08-31', buyin: 450, cashout: 527, result: 77, time: 3.56, cumulative: 9135},
+            {date: '2025-09-05', buyin: 450, cashout: 0, result: -450, time: 2.03, cumulative: 8685},
+            {date: '2025-09-07', buyin: 450, cashout: 650, result: 200, time: 5.03, cumulative: 8885},
+            {date: '2025-09-09', buyin: 450, cashout: 447, result: -3, time: 2.2, cumulative: 8882},
+            {date: '2025-09-14', buyin: 450, cashout: 519, result: 69, time: 7.75, cumulative: 8951},
+            {date: '2025-09-19', buyin: 450, cashout: 834, result: 384, time: 3.36, cumulative: 9335},
+            {date: '2025-09-28', buyin: 450, cashout: 593, result: 143, time: 4.41, cumulative: 9478},
+            {date: '2025-09-30', buyin: 450, cashout: 499, result: 49, time: 3.33, cumulative: 9527},
+            {date: '2025-10-07', buyin: 450, cashout: 407, result: -43, time: 2.31, cumulative: 9484},
+            {date: '2025-10-10', buyin: 450, cashout: 375, result: -75, time: 2.53, cumulative: 9409},
+            {date: '2025-10-12', buyin: 450, cashout: 372, result: -78, time: 1.76, cumulative: 9331}
+        ];
+
+        // ソート状態の管理
+        let currentSort = {
+            column: null,
+            direction: 'asc'
+        };
+
+        // 現在表示中のデータ
+        let currentData = sessionData;
+        
+        // グラフ表示用の状態管理
+        let chartState = {
+            currentPeriod: 'all',
+            originalData: sessionData
+        };
+
+        function sortData(column) {
+            // 同じカラムをクリックした場合は昇順・降順を切り替え
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            // ヘッダーのソート状態を更新
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === column) {
+                    th.classList.add(`sort-${currentSort.direction}`);
+                }
+            });
+
+            // データをソート
+            const sortedData = [...currentData].sort((a, b) => {
+                let aVal, bVal;
+
+                switch(column) {
+                    case 'date':
+                        aVal = new Date(a.date);
+                        bVal = new Date(b.date);
+                        break;
+                    case 'buyin':
+                    case 'cashout':
+                    case 'result':
+                    case 'time':
+                    case 'cumulative':
+                        aVal = a[column];
+                        bVal = b[column];
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            currentData = sortedData;
+            renderTable(sortedData);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('sessionTableBody');
+            tbody.innerHTML = '';
+            
+            data.forEach(session => {
+                const row = document.createElement('tr');
+                
+                const resultClass = session.result > 0 ? 'result-positive' : 
+                                  session.result < 0 ? 'result-negative' : 'result-neutral';
+                
+                const buyinClass = session.buyin >= 800 ? 'buyin-high' : 
+                                 session.buyin >= 600 ? 'buyin-medium' : 'buyin-low';
+                
+                row.innerHTML = `
+                    <td class="date-bold">${session.date}</td>
+                    <td class="${buyinClass}">${(session.buyin / 2).toFixed(1)}bb</td>
+                    <td class="cashout-bold">${(session.cashout / 2).toFixed(1)}bb</td>
+                    <td class="${resultClass}">${session.result > 0 ? '+' : ''}${(session.result / 2).toFixed(1)}bb</td>
+                    <td class="time-bold">${session.time}h</td>
+                    <td class="${session.cumulative >= 0 ? 'result-positive' : 'result-negative'}">${session.cumulative > 0 ? '+' : ''}${(session.cumulative / 2).toFixed(1)}bb</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterData(filter) {
+            // フィルターボタンのアクティブ状態を更新
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let filteredData = sessionData;
+            
+            switch(filter) {
+                case 'positive':
+                    filteredData = sessionData.filter(session => session.result > 0);
+                    break;
+                case 'negative':
+                    filteredData = sessionData.filter(session => session.result < 0);
+                    break;
+                default:
+                    filteredData = sessionData;
+            }
+            
+            // フィルター後のデータを現在のデータとして設定
+            currentData = filteredData;
+            
+            // 現在のソート状態をリセット
+            currentSort = { column: null, direction: 'asc' };
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            renderTable(filteredData);
+        }
+
+        // 期間指定機能
+        function setPeriod(period) {
+            // 期間ボタンのアクティブ状態を更新
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 日付入力フィールドをリセット
+            document.getElementById('startDate').value = '2025-01-07';
+            document.getElementById('endDate').value = '2025-10-12';
+            
+            chartState.currentPeriod = period;
+            
+            let filteredData = sessionData;
+            
+            switch(period) {
+                case 'p1':
+                    filteredData = sessionData.filter(session => {
+                        const month = new Date(session.date).getMonth() + 1;
+                        return month >= 1 && month <= 2;
+                    });
+                    break;
+                case 'p2':
+                    filteredData = sessionData.filter(session => {
+                        const month = new Date(session.date).getMonth() + 1;
+                        return month >= 3 && month <= 4;
+                    });
+                    break;
+                case 'p3':
+                    filteredData = sessionData.filter(session => {
+                        const month = new Date(session.date).getMonth() + 1;
+                        return month >= 5 && month <= 6;
+                    });
+                    break;
+                case 'p4':
+                    filteredData = sessionData.filter(session => {
+                        const month = new Date(session.date).getMonth() + 1;
+                        return month >= 7 && month <= 8;
+                    });
+                    break;
+                case 'p5':
+                    filteredData = sessionData.filter(session => {
+                        const month = new Date(session.date).getMonth() + 1;
+                        return month >= 9 && month <= 10;
+                    });
+                    break;
+                default:
+                    filteredData = sessionData;
+            }
+            
+            chartState.originalData = filteredData;
+            
+            drawLineChart();
+            
+            // テーブルも更新
+            currentData = filteredData;
+            currentSort = { column: null, direction: 'asc' };
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            renderTable(filteredData);
+        }
+
+
+
+
+
+        // 日付範囲適用機能
+        function applyDateRange() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('開始日と終了日を両方選択してください。');
+                return;
+            }
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('開始日は終了日より前の日付を選択してください。');
+                return;
+            }
+            
+            // 期間ボタンのアクティブ状態をリセット
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // 指定された日付範囲でデータをフィルタリング
+            const filteredData = sessionData.filter(session => {
+                const sessionDate = new Date(session.date);
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                return sessionDate >= start && sessionDate <= end;
+            });
+            
+            if (filteredData.length === 0) {
+                alert('指定された期間にデータがありません。');
+                return;
+            }
+            
+            chartState.originalData = filteredData;
+            chartState.currentPeriod = 'custom';
+            
+            drawLineChart();
+            
+            // テーブルも更新
+            currentData = filteredData;
+            currentSort = { column: null, direction: 'asc' };
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            renderTable(filteredData);
+        }
+
+        // 折れ線グラフの描画
+        function drawLineChart() {
+            const svg = document.getElementById('lineChart');
+            const gridLines = document.getElementById('gridLines');
+            const areaPath = document.getElementById('areaPath');
+            const linePath = document.getElementById('linePath');
+            const dataPoints = document.getElementById('dataPoints');
+            const axisLabels = document.getElementById('axisLabels');
+            
+            const width = 2100;
+            const height = 1125;
+            const padding = 120;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            
+            // 表示用データの取得
+            const displayData = chartState.originalData;
+            
+            // データの準備 - 動的に最小値・最大値を計算
+            const cumulativeValues = displayData.map(session => session.cumulative / 2); // BB換算
+            const minValue = Math.min(0, Math.min(...cumulativeValues));
+            const maxValue = Math.max(0, Math.max(...cumulativeValues));
+            const range = maxValue - minValue;
+            
+            // スケール関数
+            const xScale = (index) => padding + (index / (displayData.length - 1)) * chartWidth;
+            const yScale = (value) => padding + chartHeight - ((value - minValue) / range) * chartHeight;
+            
+            // 既存のY軸ラベルをクリア
+            const existingYLabels = axisLabels.querySelectorAll('.y-axis-label');
+            existingYLabels.forEach(label => label.remove());
+            
+            // グリッド線の描画（動的）
+            gridLines.innerHTML = '';
+            const gridSteps = 5; // グリッド線の数
+            for (let i = 0; i <= gridSteps; i++) {
+                const y = padding + (i / gridSteps) * chartHeight;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', padding);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', width - padding);
+                line.setAttribute('y2', y);
+                line.setAttribute('class', 'grid-line');
+                gridLines.appendChild(line);
+                
+                // Y軸ラベル（動的）
+                const value = maxValue - (i / gridSteps) * range;
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', padding - 22);
+                label.setAttribute('y', y + 7);
+                label.setAttribute('class', 'axis-label y-axis-label');
+                label.textContent = Math.round(value).toLocaleString() + 'bb';
+                axisLabels.appendChild(label);
+            }
+            
+            // データポイントの描画
+            dataPoints.innerHTML = '';
+            displayData.forEach((session, index) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', xScale(index));
+                circle.setAttribute('cy', yScale(session.cumulative / 2)); // BB換算
+                circle.setAttribute('class', 'data-point');
+                circle.setAttribute('data-date', session.date);
+                circle.setAttribute('data-result', session.result);
+                circle.setAttribute('data-cumulative', session.cumulative);
+                dataPoints.appendChild(circle);
+            });
+            
+            // ラインの描画
+            let linePathData = '';
+            let areaPathData = '';
+            
+            displayData.forEach((session, index) => {
+                const x = xScale(index);
+                const y = yScale(session.cumulative / 2); // BB換算
+                
+                if (index === 0) {
+                    linePathData += `M ${x} ${y}`;
+                    areaPathData += `M ${x} ${yScale(minValue)} L ${x} ${y}`;
+                } else {
+                    linePathData += ` L ${x} ${y}`;
+                    areaPathData += ` L ${x} ${y}`;
+                }
+            });
+            
+            // エリアを閉じる
+            areaPathData += ` L ${xScale(displayData.length - 1)} ${yScale(minValue)} Z`;
+            
+            linePath.setAttribute('d', linePathData);
+            areaPath.setAttribute('d', areaPathData);
+            
+            // X軸ラベル（動的）
+            // 既存のX軸ラベルをクリア（Y軸ラベルは保持）
+            const xAxisLabels = axisLabels.querySelectorAll('text:not(.y-axis-label)');
+            xAxisLabels.forEach(label => label.remove());
+            
+            // 表示データの数に応じて適切な間隔でX軸ラベルを配置
+            const maxLabels = Math.min(10, displayData.length); // 最大10個のラベル
+            const labelInterval = Math.max(1, Math.floor(displayData.length / maxLabels));
+            
+            for (let i = 0; i < displayData.length; i += labelInterval) {
+                const x = xScale(i);
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', x);
+                label.setAttribute('y', height - padding + 37);
+                label.setAttribute('class', 'axis-label x-axis-label');
+                label.textContent = displayData[i].date.substring(5); // MM-DD形式
+                axisLabels.appendChild(label);
+            }
+            
+            // 最後のデータポイントが表示されていない場合は追加
+            if (displayData.length > 1 && (displayData.length - 1) % labelInterval !== 0) {
+                const lastIndex = displayData.length - 1;
+                const x = xScale(lastIndex);
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', x);
+                label.setAttribute('y', height - padding + 37);
+                label.setAttribute('class', 'axis-label x-axis-label');
+                label.textContent = displayData[lastIndex].date.substring(5);
+                axisLabels.appendChild(label);
+            }
+        }
+        
+        // ツールチップの作成
+        function createTooltip() {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
+            return tooltip;
+        }
+        
+        const tooltip = createTooltip();
+        
+        // データポイントのイベントリスナー
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const points = document.querySelectorAll('.data-point');
+                points.forEach(point => {
+                    point.addEventListener('mouseenter', function(e) {
+                        const date = this.getAttribute('data-date');
+                        const result = this.getAttribute('data-result');
+                        const cumulative = this.getAttribute('data-cumulative');
+                        
+                        tooltip.innerHTML = `
+                            <strong>${date}</strong><br>
+                            セッション結果: ${result > 0 ? '+' : ''}${(result / 2).toFixed(1)}bb<br>
+                            累計結果: ${cumulative > 0 ? '+' : ''}${(cumulative / 2).toFixed(1)}bb
+                        `;
+                        tooltip.style.opacity = '1';
+                    });
+                    
+                    point.addEventListener('mousemove', function(e) {
+                        tooltip.style.left = e.pageX + 10 + 'px';
+                        tooltip.style.top = e.pageY - 10 + 'px';
+                    });
+                    
+                    point.addEventListener('mouseleave', function() {
+                        tooltip.style.opacity = '0';
+                    });
+                });
+            }, 100);
+        });
+
+        // 初期表示
+        renderTable(sessionData);
+        drawLineChart();
+
+        // テーブルヘッダーのクリックイベントリスナーを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const column = this.dataset.sort;
+                    sortData(column);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
