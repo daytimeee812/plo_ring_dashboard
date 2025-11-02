@@ -25,6 +25,7 @@
         }
 
         .header {
+            position: relative;
             text-align: center;
             margin-bottom: 40px;
             padding: 30px 0;
@@ -44,6 +45,19 @@
         .header p {
             font-size: 1.1rem;
             color: #a0a0a0;
+        }
+
+        .stats-section {
+            margin-bottom: 50px;
+        }
+
+        .stats-section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
         }
 
         .stats-grid {
@@ -122,6 +136,12 @@
         }
 
         .period-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chart-mode-selector {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
@@ -442,57 +462,203 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* スイッチボタンのスタイル */
+        .unit-switch-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .unit-switch-label {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+
+        .unit-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .unit-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .unit-switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .unit-switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #00d4ff;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .unit-switch input:checked + .unit-switch-slider {
+            background-color: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        .unit-switch input:checked + .unit-switch-slider:before {
+            transform: translateX(30px);
+        }
+
+        .unit-switch-text {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #ffffff;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .unit-switch-text.bb {
+            left: 8px;
+        }
+
+        .unit-switch-text.pt {
+            right: 8px;
+        }
+
+        .unit-switch input:checked ~ .unit-switch-text.bb {
+            opacity: 0.5;
+        }
+
+        .unit-switch input:not(:checked) ~ .unit-switch-text.pt {
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>ヒルマ PLOリング成績ダッシュボード</h1>
-            <p>2025年1月7日〜2025年10月12日</p>
-            <p>MUSASHI POKER ROOM 渋谷本店</p>
+            <div class="unit-switch-container">
+                <span class="unit-switch-label">単位:</span>
+                <label class="unit-switch">
+                    <input type="checkbox" id="unitToggle" onchange="toggleUnit()">
+                    <span class="unit-switch-slider"></span>
+                    <span class="unit-switch-text bb">bb</span>
+                    <span class="unit-switch-text pt">pt</span>
+                </label>
+            </div>
+            <h1>PLOリング成績ダッシュボード</h1>
+            <p>プレイヤー: ヒルマ（<a href="https://x.com/hiruma_poker" target="_blank" style="color: #00d4ff; text-decoration: none;">X</a>・<a href="https://note.com/hiruma_poker" target="_blank" style="color: #00d4ff; text-decoration: none;">note</a>）</p>
+            <p>期間: <span id="dateRange">データ読み込み中...</span></p>
+            <p>場所: <a href="https://x.com/634pokerroom" target="_blank" style="color: #00d4ff; text-decoration: none;">MUSASHI POKER ROOM 渋谷本店</a></p>
         </div>
 
+        <!-- プレー実績 -->
+        <div class="stats-section">
+            <h2 class="stats-section-title">プレー実績</h2>
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>累計結果</h3>
-                <div class="value positive">+4,665.5bb</div>
-                <p>総利益</p>
+                    <h3>Total Playing Time</h3>
+                    <div class="value neutral">300.3h</div>
+                    <p>時間</p>
             </div>
             <div class="stat-card">
-                <h3>総セッション数</h3>
-                <div class="value neutral">82</div>
+                    <h3>Total Sessions</h3>
+                    <div class="value neutral">87</div>
                 <p>セッション</p>
             </div>
             <div class="stat-card">
-                <h3>勝率</h3>
-                <div class="value positive">65%</div>
-                <p>53勝 / 29負</p>
+                    <h3>Session Win Rate</h3>
+                    <div class="value positive">66%</div>
+                    <p>58W / 29L</p>
             </div>
             <div class="stat-card">
-                <h3>累計プレイ時間</h3>
-                <div class="value neutral">286.2h</div>
-                <p>時間</p>
+                    <h3>Average Session Time</h3>
+                    <div class="value neutral">3.5h</div>
+                    <p>平均セッション時間</p>
+            </div>
+            </div>
+        </div>
+
+        <!-- 収支 -->
+        <div class="stats-section">
+            <h2 class="stats-section-title">収支</h2>
+            <div class="stats-grid">
+            <div class="stat-card">
+                    <h3>Total Result</h3>
+                    <div class="value positive">+5,444.4bb</div>
+                    <p>総利益</p>
             </div>
             <div class="stat-card">
-                <h3>平均時給</h3>
-                <div class="value positive">16.5bb/h</div>
+                    <h3>Average Hourly Rate</h3>
+                    <div class="value positive">+18.1bb/h</div>
                 <p>時給</p>
             </div>
             <div class="stat-card">
-                <h3>最高勝ち</h3>
-                <div class="value positive">+563bb</div>
-                <p>1月31日</p>
+                    <h3>Best Profit</h3>
+                    <div class="value positive">+563.0bb</div>
+                    <p>2025年1月31日</p>
             </div>
             <div class="stat-card">
-                <h3>最高負け</h3>
+                    <h3>Worst Loss</h3>
                 <div class="value negative">-329.5bb</div>
-                <p>4月13日</p>
+                    <p>2025年4月13日</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 統計指標 -->
+        <div class="stats-section">
+            <h2 class="stats-section-title">統計指標</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Avg Win</h3>
+                    <div class="value positive">+137.0bb</div>
+                    <p>平均プロフィット</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Avg Loss</h3>
+                    <div class="value negative">-95.3bb</div>
+                    <p>平均ロス</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Median Win</h3>
+                    <div class="value positive">+105.0bb</div>
+                    <p>中央値プロフィット</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Median Loss</h3>
+                    <div class="value negative">-54.0bb</div>
+                    <p>中央値ロス</p>
+                </div>
             </div>
         </div>
 
         <div class="chart-container">
             <div class="chart-controls-row">
                 <div class="chart-title">セッション別成績推移</div>
+                <div class="chart-mode-selector">
+                    <button class="period-btn active" id="cumulativeBtn" onclick="setChartMode('cumulative')">累計結果</button>
+                    <button class="period-btn" id="movingAvgBtn" onclick="setChartMode('movingAverage')">1ヶ月移動平均</button>
+                </div>
             </div>
             <div class="chart-controls">
                 <div class="chart-controls-row">
@@ -506,10 +672,10 @@
                     </div>
                      <div class="date-range-selector">
                          <div class="date-input-group">
-                             <input type="date" id="startDate" class="date-input" value="2025-01-07">
+                             <input type="date" id="startDate" class="date-input">
                          </div>
                          <div class="date-input-group">
-                             <input type="date" id="endDate" class="date-input" value="2025-10-12">
+                             <input type="date" id="endDate" class="date-input">
                          </div>
                          <button class="apply-date-btn" onclick="applyDateRange()">
                              適用
@@ -542,19 +708,21 @@
         <div class="data-table">
             <div class="table-title">セッション詳細データ</div>
             <div class="filters">
-                <button class="filter-btn active" onclick="filterData('all')">全て</button>
-                <button class="filter-btn" onclick="filterData('positive')">勝ちセッション</button>
-                <button class="filter-btn" onclick="filterData('negative')">負けセッション</button>
+                <button class="filter-btn active" onclick="filterData('all')">ALL</button>
+                <button class="filter-btn" onclick="filterData('positive')">Win</button>
+                <button class="filter-btn" onclick="filterData('negative')">Lose</button>
             </div>
             <table id="sessionTable">
                 <thead>
                     <tr>
-                        <th class="sortable" data-sort="date">日付</th>
-                        <th class="sortable" data-sort="buyin">バイイン</th>
-                        <th class="sortable" data-sort="cashout">キャッシュアウト</th>
-                        <th class="sortable" data-sort="result">結果</th>
-                        <th class="sortable" data-sort="time">プレイ時間</th>
-                        <th class="sortable" data-sort="cumulative">累計結果</th>
+                        <th class="sortable" data-sort="date">Date</th>
+                        <th class="sortable" data-sort="game">Game</th>
+                        <th class="sortable" data-sort="table">Table</th>
+                        <th class="sortable" data-sort="buyin">Buy-in</th>
+                        <th class="sortable" data-sort="cashout">Cash-out</th>
+                        <th class="sortable" data-sort="result">Result</th>
+                        <th class="sortable" data-sort="time">Time</th>
+                        <th class="sortable" data-sort="cumulative">Cumulative</th>
                     </tr>
                 </thead>
                 <tbody id="sessionTableBody">
@@ -565,91 +733,8 @@
     </div>
 
     <script>
-        // CSVデータ（簡略化版）
-        const sessionData = [
-            {date: '2025-01-07', buyin: 400, cashout: 538, result: 138, time: 3.21, cumulative: 138},
-            {date: '2025-01-07', buyin: 400, cashout: 274, result: -126, time: 2.28, cumulative: 12},
-            {date: '2025-01-10', buyin: 400, cashout: 956, result: 556, time: 2.04, cumulative: 568},
-            {date: '2025-01-19', buyin: 400, cashout: 1097, result: 697, time: 9.66, cumulative: 1265},
-            {date: '2025-01-21', buyin: 400, cashout: 393, result: -7, time: 2.68, cumulative: 1258},
-            {date: '2025-01-24', buyin: 400, cashout: 1164, result: 764, time: 2.96, cumulative: 2022},
-            {date: '2025-01-31', buyin: 400, cashout: 1526, result: 1126, time: 2.73, cumulative: 3148},
-            {date: '2025-02-02', buyin: 400, cashout: 557, result: 157, time: 9.65, cumulative: 3305},
-            {date: '2025-02-07', buyin: 400, cashout: 628, result: 228, time: 2.91, cumulative: 3533},
-            {date: '2025-02-09', buyin: 400, cashout: 596, result: 196, time: 2.76, cumulative: 3729},
-            {date: '2025-02-11', buyin: 400, cashout: 575, result: 175, time: 4.93, cumulative: 3904},
-            {date: '2025-02-14', buyin: 400, cashout: 649, result: 249, time: 2.78, cumulative: 4153},
-            {date: '2025-02-16', buyin: 400, cashout: 711, result: 311, time: 6.08, cumulative: 4464},
-            {date: '2025-02-16', buyin: 400, cashout: 348, result: -52, time: 0.58, cumulative: 4412},
-            {date: '2025-02-23', buyin: 400, cashout: 270, result: -130, time: 2.46, cumulative: 4282},
-            {date: '2025-02-25', buyin: 400, cashout: 425, result: 25, time: 3.18, cumulative: 4307},
-            {date: '2025-02-28', buyin: 400, cashout: 673, result: 273, time: 3.45, cumulative: 4580},
-            {date: '2025-03-02', buyin: 400, cashout: 181, result: -219, time: 8.15, cumulative: 4361},
-            {date: '2025-03-04', buyin: 400, cashout: 407, result: 7, time: 3.23, cumulative: 4368},
-            {date: '2025-03-07', buyin: 400, cashout: 423, result: 23, time: 2.41, cumulative: 4391},
-            {date: '2025-03-09', buyin: 400, cashout: 738, result: 338, time: 6.6, cumulative: 4729},
-            {date: '2025-03-11', buyin: 400, cashout: 316, result: -84, time: 2.7, cumulative: 4645},
-            {date: '2025-03-14', buyin: 400, cashout: 511, result: 111, time: 2.1, cumulative: 4756},
-            {date: '2025-03-16', buyin: 800, cashout: 182, result: -618, time: 3.55, cumulative: 4138},
-            {date: '2025-03-21', buyin: 400, cashout: 528, result: 128, time: 2.18, cumulative: 4266},
-            {date: '2025-03-23', buyin: 400, cashout: 403, result: 3, time: 4.28, cumulative: 4269},
-            {date: '2025-03-28', buyin: 800, cashout: 277, result: -523, time: 2.63, cumulative: 3746},
-            {date: '2025-03-30', buyin: 400, cashout: 436, result: 36, time: 1.93, cumulative: 3782},
-            {date: '2025-03-30', buyin: 400, cashout: 367, result: -33, time: 3.26, cumulative: 3749},
-            {date: '2025-04-01', buyin: 400, cashout: 536, result: 136, time: 2.86, cumulative: 3885},
-            {date: '2025-04-04', buyin: 400, cashout: 207, result: -193, time: 2.71, cumulative: 3692},
-            {date: '2025-04-06', buyin: 400, cashout: 639, result: 239, time: 9.21, cumulative: 3931},
-            {date: '2025-04-13', buyin: 1050, cashout: 391, result: -659, time: 7, cumulative: 3272},
-            {date: '2025-04-15', buyin: 400, cashout: 292, result: -108, time: 2.61, cumulative: 3164},
-            {date: '2025-04-22', buyin: 400, cashout: 458, result: 58, time: 2.11, cumulative: 3222},
-            {date: '2025-05-09', buyin: 400, cashout: 83, result: -317, time: 3.13, cumulative: 2905},
-            {date: '2025-05-11', buyin: 400, cashout: 435, result: 35, time: 3.36, cumulative: 2940},
-            {date: '2025-05-18', buyin: 450, cashout: 695, result: 245, time: 4.09, cumulative: 3185},
-            {date: '2025-05-20', buyin: 450, cashout: 342, result: -108, time: 1.8, cumulative: 3077},
-            {date: '2025-05-25', buyin: 450, cashout: 492, result: 42, time: 2.58, cumulative: 3119},
-            {date: '2025-05-27', buyin: 450, cashout: 732, result: 282, time: 2.23, cumulative: 3401},
-            {date: '2025-05-30', buyin: 450, cashout: 143, result: -307, time: 3.38, cumulative: 3094},
-            {date: '2025-06-03', buyin: 700, cashout: 625, result: -75, time: 2.83, cumulative: 3019},
-            {date: '2025-06-06', buyin: 450, cashout: 689, result: 239, time: 2.48, cumulative: 3258},
-            {date: '2025-06-08', buyin: 450, cashout: 494, result: 44, time: 5.08, cumulative: 3302},
-            {date: '2025-06-13', buyin: 450, cashout: 863, result: 413, time: 2.54, cumulative: 3715},
-            {date: '2025-06-20', buyin: 450, cashout: 393, result: -57, time: 1.01, cumulative: 3658},
-            {date: '2025-06-20', buyin: 450, cashout: 434, result: -16, time: 0.9, cumulative: 3642},
-            {date: '2025-06-22', buyin: 750, cashout: 339, result: -411, time: 4.86, cumulative: 3231},
-            {date: '2025-06-27', buyin: 450, cashout: 397, result: -53, time: 0.48, cumulative: 3178},
-            {date: '2025-06-29', buyin: 850, cashout: 404, result: -446, time: 7.58, cumulative: 2732},
-            {date: '2025-07-04', buyin: 450, cashout: 476, result: 26, time: 3.08, cumulative: 2758},
-            {date: '2025-07-06', buyin: 450, cashout: 1010, result: 560, time: 2.96, cumulative: 3318},
-            {date: '2025-07-08', buyin: 450, cashout: 735, result: 285, time: 2.28, cumulative: 3603},
-            {date: '2025-07-11', buyin: 450, cashout: 542, result: 92, time: 1.58, cumulative: 3695},
-            {date: '2025-07-13', buyin: 600, cashout: 769, result: 169, time: 3.91, cumulative: 3864},
-            {date: '2025-07-15', buyin: 450, cashout: 1233, result: 783, time: 4.3, cumulative: 4647},
-            {date: '2025-07-18', buyin: 450, cashout: 418, result: -32, time: 2.35, cumulative: 4615},
-            {date: '2025-07-20', buyin: 450, cashout: 739, result: 289, time: 4.31, cumulative: 4904},
-            {date: '2025-07-22', buyin: 450, cashout: 949, result: 499, time: 4.01, cumulative: 5403},
-            {date: '2025-07-25', buyin: 450, cashout: 900, result: 450, time: 2.35, cumulative: 5853},
-            {date: '2025-07-27', buyin: 750, cashout: 849, result: 99, time: 4.59, cumulative: 5952},
-            {date: '2025-08-03', buyin: 450, cashout: 801, result: 351, time: 3.81, cumulative: 6303},
-            {date: '2025-08-08', buyin: 450, cashout: 634, result: 184, time: 3.03, cumulative: 6487},
-            {date: '2025-08-10', buyin: 900, cashout: 705, result: -195, time: 7.48, cumulative: 6292},
-            {date: '2025-08-12', buyin: 450, cashout: 744, result: 294, time: 2.56, cumulative: 6586},
-            {date: '2025-08-15', buyin: 450, cashout: 1280, result: 830, time: 2.5, cumulative: 7416},
-            {date: '2025-08-17', buyin: 450, cashout: 339, result: -111, time: 3.63, cumulative: 7305},
-            {date: '2025-08-22', buyin: 450, cashout: 921, result: 471, time: 0.91, cumulative: 7776},
-            {date: '2025-08-24', buyin: 650, cashout: 1712, result: 1062, time: 4.03, cumulative: 8838},
-            {date: '2025-08-29', buyin: 450, cashout: 670, result: 220, time: 2.04, cumulative: 9058},
-            {date: '2025-08-31', buyin: 450, cashout: 527, result: 77, time: 3.56, cumulative: 9135},
-            {date: '2025-09-05', buyin: 450, cashout: 0, result: -450, time: 2.03, cumulative: 8685},
-            {date: '2025-09-07', buyin: 450, cashout: 650, result: 200, time: 5.03, cumulative: 8885},
-            {date: '2025-09-09', buyin: 450, cashout: 447, result: -3, time: 2.2, cumulative: 8882},
-            {date: '2025-09-14', buyin: 450, cashout: 519, result: 69, time: 7.75, cumulative: 8951},
-            {date: '2025-09-19', buyin: 450, cashout: 834, result: 384, time: 3.36, cumulative: 9335},
-            {date: '2025-09-28', buyin: 450, cashout: 593, result: 143, time: 4.41, cumulative: 9478},
-            {date: '2025-09-30', buyin: 450, cashout: 499, result: 49, time: 3.33, cumulative: 9527},
-            {date: '2025-10-07', buyin: 450, cashout: 407, result: -43, time: 2.31, cumulative: 9484},
-            {date: '2025-10-10', buyin: 450, cashout: 375, result: -75, time: 2.53, cumulative: 9409},
-            {date: '2025-10-12', buyin: 450, cashout: 372, result: -78, time: 1.76, cumulative: 9331}
-        ];
+        // データ管理
+        let sessionData = [];
 
         // ソート状態の管理
         let currentSort = {
@@ -658,13 +743,557 @@
         };
 
         // 現在表示中のデータ
-        let currentData = sessionData;
+        let currentData = [];
         
         // グラフ表示用の状態管理
         let chartState = {
             currentPeriod: 'all',
-            originalData: sessionData
+            originalData: [],
+            displayMode: 'cumulative' // 'cumulative' または 'movingAverage'
         };
+
+        // 表示単位の管理（'bb' または 'pt'）
+        let displayUnit = 'bb';
+
+        // 日付フォーマット関数
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        // データから最初と最後の日付を取得する関数
+        function getDateRange(data) {
+            if (!data || data.length === 0) {
+                return { firstDate: '', lastDate: '' };
+            }
+            // 日付でソート（念のため）
+            const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+            return {
+                firstDate: sortedData[0].date,
+                lastDate: sortedData[sortedData.length - 1].date
+            };
+        }
+
+        // CSVデータ（埋め込み）
+        const csvData = `Log-Id,MyID,Nickname,StoreName,Status,Check-in,Check-out,Buy-in,Cash-out,Table,Playing-Time,Result,Result(BB),Net-Result,Net-Result(BB),Total-Playing-Time,Adjusted-Result,Adjusted-Net-Result,Adjusted-Net-Result(BB),Adjusted-Hourly-Wage,mod.condition,add.Game,mod.Buy-in,mod.Cash-out
+50760,33axfep8,比留間,渋谷店,1,2025-01-07 17:02:47,2025-01-07 20:16:00,100400,100538,1-2,3.21,138,69,158,92.16,9.6,150.84,214.46,111.36,11.6,100000集計,PLO,400,538
+50830,33axfep8,比留間,渋谷店,1,2025-01-07 20:35:00,2025-01-07 22:52:07,100400,100274,1-2,2.28,-126,-63,32,29.16,11.88,-116.88,97.58,52.92,4.45,100000集計,PLO,400,274
+51065,33axfep8,比留間,渋谷店,1,2025-01-10 20:52:40,2025-01-10 22:56:12,100400,100956,1-2,2.04,556,278,588,307.16,13.92,564.16,661.74,335,24.06,100000集計,PLO,400,956
+51797,33axfep8,比留間,渋谷店,1,2025-01-19 13:10:02,2025-01-19 22:50:53,100400,101097,1-2,9.66,697,348.5,1285,655.66,23.58,735.64,1397.38,702.82,29.8,100000集計,PLO,400,1097
+52064,33axfep8,比留間,渋谷店,1,2025-01-21 20:13:21,2025-01-21 22:54:37,100400,100393,1-2,2.68,-7,-3.5,1278,652.16,26.26,3.72,1401.1,704.68,26.83,100000集計,PLO,400,393
+52332,33axfep8,比留間,渋谷店,1,2025-01-24 19:50:10,2025-01-24 22:49:09,100400,101164,1-2,2.96,764,382,2042,1034.16,29.22,775.84,2176.94,1092.6,37.39,100000集計,PLO,400,1164
+53040,33axfep8,比留間,渋谷店,1,2025-01-31 20:03:20,2025-01-31 22:47:58,100400,101526,1-2,2.73,1126,563,3168,1597.16,31.95,1136.92,3313.86,1661.06,51.98,100000集計,PLO,400,1526
+53223,33axfep8,比留間,渋谷店,1,2025-02-02 13:09:57,2025-02-02 22:49:52,100400,100557,1-2,9.65,157,78.5,3325,1675.66,41.6,195.6,3509.46,1758.86,42.28,100000集計,PLO,400,557
+53817,33axfep8,比留間,渋谷店,1,2025-02-07 19:54:20,2025-02-07 22:49:56,100400,100628,1-2,2.91,228,114,3553,1789.66,44.51,239.64,3749.1,1878.68,42.2,100000集計,PLO,400,628
+54047,33axfep8,比留間,渋谷店,1,2025-02-09 14:22:54,2025-02-09 17:09:29,100400,100596,1-2,2.76,196,98,3749,1887.66,47.27,207.04,3956.14,1982.2,41.93,100000集計,PLO,400,596
+54242,33axfep8,比留間,渋谷店,1,2025-02-11 13:17:55,2025-02-11 18:14:10,100400,100575,1-2,4.93,175,87.5,3924,1975.16,52.2,194.72,4150.86,2079.56,39.83,100000集計,PLO,400,575
+54546,33axfep8,比留間,渋谷店,1,2025-02-14 20:02:41,2025-02-14 22:50:06,100400,100649,1-2,2.78,249,124.5,4173,2099.66,54.98,260.12,4410.98,2209.62,40.18,100000集計,PLO,400,649
+54738,33axfep8,比留間,渋谷店,1,2025-02-16 13:06:06,2025-02-16 19:11:53,100400,100711,1-2,6.08,311,155.5,4484,2255.16,61.06,335.32,4746.3,2377.28,38.93,100000集計,PLO,400,711
+54814,33axfep8,比留間,渋谷店,1,2025-02-16 19:28:41,2025-02-16 20:04:30,100400,100348,1-2,0.58,-52,-26,4432,2229.16,61.64,-49.68,4696.62,2352.44,38.16,100000集計,PLO,400,348
+55402,33axfep8,比留間,渋谷店,1,2025-02-23 13:08:03,2025-02-23 15:36:22,100400,100270,1-2,2.46,-130,-65,4302,2164.16,64.1,-120.16,4576.46,2292.36,35.76,100000集計,PLO,400,270
+55669,33axfep8,比留間,渋谷店,1,2025-02-25 19:36:08,2025-02-25 22:47:11,100400,100425,1-2,3.18,25,12.5,4327,2176.66,67.28,37.72,4614.18,2311.22,34.35,100000集計,PLO,400,425
+55960,33axfep8,比留間,渋谷店,1,2025-02-28 19:20:15,2025-02-28 22:48:08,100400,100673,1-2,3.45,273,136.5,4600,2313.16,70.73,286.8,4900.98,2454.62,34.7,100000集計,PLO,400,673
+56163,33axfep8,比留間,渋谷店,1,2025-03-02 14:38:48,2025-03-02 22:47:52,100400,100181,1-2,8.15,-219,-109.5,4381,2203.66,78.88,-186.4,4714.58,2361.42,29.93,100000集計,PLO,400,181
+56366,33axfep8,比留間,渋谷店,1,2025-03-04 19:32:28,2025-03-04 22:47:22,100400,100407,1-2,3.23,7,3.5,4388,2207.16,82.11,19.92,4734.5,2371.38,28.88,100000集計,PLO,400,407
+56637,33axfep8,比留間,渋谷店,1,2025-03-07 20:25:18,2025-03-07 22:50:34,100400,100423,1-2,2.41,23,11.5,4411,2218.66,84.52,32.64,4767.14,2387.7,28.25,100000集計,PLO,400,423
+56823,33axfep8,比留間,渋谷店,1,2025-03-09 13:55:25,2025-03-09 20:32:20,100400,100738,1-2,6.6,338,169,4749,2387.66,91.12,364.4,5131.54,2569.9,28.2,100000集計,PLO,400,738
+57054,33axfep8,比留間,渋谷店,1,2025-03-11 20:06:41,2025-03-11 22:49:13,100400,100316,1-2,2.7,-84,-42,4665,2345.66,93.82,-73.2,5058.34,2533.3,27,100000集計,PLO,400,316
+57345,33axfep8,比留間,渋谷店,1,2025-03-14 20:45:42,2025-03-14 22:52:25,100400,100511,1-2,2.1,111,55.5,4776,2401.16,95.92,119.4,5177.74,2593,27.03,100000集計,PLO,400,511
+57542,33axfep8,比留間,渋谷店,1,2025-03-16 15:22:33,2025-03-16 18:56:20,100800,100182,1-2,3.55,-618,-309,4158,2092.16,99.47,-603.8,4573.94,2291.1,23.03,100000集計,PLO,800,182
+58087,33axfep8,比留間,渋谷店,1,2025-03-21 20:36:28,2025-03-21 22:48:27,100400,100528,1-2,2.18,128,64,4286,2156.16,101.65,136.72,4710.66,2359.46,23.21,100000集計,PLO,400,528
+58261,33axfep8,比留間,渋谷店,1,2025-03-23 13:31:57,2025-03-23 17:49:34,100400,100403,1-2,4.28,3,1.5,4289,2157.66,105.93,20.12,4730.78,2369.52,22.36,100000集計,PLO,400,403
+58847,33axfep8,比留間,渋谷店,1,2025-03-28 20:14:11,2025-03-28 22:52:19,100800,100277,1-2,2.63,-523,-261.5,3766,1896.16,108.56,-512.48,4218.3,2113.28,19.46,100000集計,PLO,800,277
+59054,33axfep8,比留間,渋谷店,1,2025-03-30 15:43:45,2025-03-30 17:40:04,100400,100436,1-2,1.93,36,18,3802,1914.16,110.49,43.72,4262.02,2135.14,19.32,100000集計,PLO,400,436
+59115,33axfep8,比留間,渋谷店,1,2025-03-30 19:32:50,2025-03-30 22:49:13,100400,100367,1-2,3.26,-33,-16.5,3769,1897.66,113.75,-19.96,4242.06,2125.16,18.68,100000集計,PLO,400,367
+59329,33axfep8,比留間,渋谷店,1,2025-04-01 19:55:01,2025-04-01 22:47:01,100400,100536,1-2,2.86,136,68,3905,1965.66,116.61,147.44,4389.5,2198.88,18.85,100000集計,PLO,400,536
+59622,33axfep8,比留間,渋谷店,1,2025-04-04 20:05:52,2025-04-04 22:49:37,100400,100207,1-2,2.71,-193,-96.5,3712,1869.16,119.32,-182.16,4207.34,2107.8,17.66,100000集計,PLO,400,207
+59811,33axfep8,比留間,渋谷店,1,2025-04-06 13:24:48,2025-04-06 22:38:12,100400,100639,1-2,9.21,239,119.5,3951,1988.66,128.53,275.84,4483.18,2245.72,17.47,100000集計,PLO,400,639
+60587,33axfep8,比留間,渋谷店,1,2025-04-13 15:48:50,2025-04-13 22:48:51,101050,100391,1-2,7,-659,-329.5,3292,1659.16,135.53,-631,3852.18,1930.22,14.24,100000集計,PLO,1050,391
+60909,33axfep8,比留間,渋谷店,1,2025-04-15 20:10:03,2025-04-15 22:47:45,100400,100292,1-2,2.61,-108,-54,3184,1605.16,138.14,-97.56,3754.62,1881.44,13.61,100000集計,PLO,400,292
+62010,33axfep8,比留間,渋谷店,1,2025-04-22 20:39:47,2025-04-22 22:47:34,100400,100458,1-2,2.11,58,29,3242,1634.16,140.25,66.44,3821.06,1914.66,13.65,100000集計,PLO,400,458
+64073,33axfep8,比留間,渋谷店,1,2025-05-09 19:40:07,2025-05-09 22:48:34,100400,100083,1-2,3.13,-317,-158.5,3877,1666.06,148.05,-304.48,4515.28,1962.16,13.25,100000集計,PLO,400,83
+64409,33axfep8,比留間,渋谷店,1,2025-05-11 19:24:09,2025-05-11 22:46:58,100400,100435,1-2,3.36,35,17.5,3912,1683.56,151.41,48.44,4563.72,1986.38,13.11,100000集計,PLO,400,435
+65303,33axfep8,比留間,渋谷店,1,2025-05-18 17:45:10,2025-05-18 21:52:04,100450,100695,1-2,4.09,245,122.5,4603,1895.26,157.08,261.36,5286.88,2209.42,14.06,100000集計,PLO,450,695
+65573,33axfep8,比留間,渋谷店,1,2025-05-20 20:59:26,2025-05-20 22:47:57,100450,100342,1-2,1.8,-108,-54,4495,1841.26,158.88,-100.8,5186.08,2159.02,13.58,100000集計,PLO,450,342
+66221,33axfep8,比留間,渋谷店,1,2025-05-25 19:11:53,2025-05-25 21:47:08,100450,100492,1-2,2.58,42,21,4537,1862.26,161.46,52.32,5238.4,2185.18,13.53,100000集計,PLO,450,492
+66461,33axfep8,比留間,渋谷店,1,2025-05-27 20:36:34,2025-05-27 22:50:46,100450,100732,1-2,2.23,282,141,4819,2003.26,163.69,290.92,5529.32,2330.64,14.23,100000集計,PLO,450,732
+66786,33axfep8,比留間,渋谷店,1,2025-05-30 19:30:33,2025-05-30 22:54:14,100450,100143,1-2,3.38,-307,-153.5,4512,1849.76,167.07,-293.48,5235.84,2183.9,13.07,100000集計,PLO,450,143
+67389,33axfep8,比留間,渋谷店,1,2025-06-03 19:56:22,2025-06-03 22:47:03,700,625,1-2,2.83,-75,-37.5,4437,1812.26,169.9,-63.68,5172.16,2152.06,12.66,FALSE,PLO,700,625
+67739,33axfep8,比留間,渋谷店,1,2025-06-06 20:20:13,2025-06-06 22:49:55,450,689,1-2,2.48,239,119.5,4676,1931.76,172.38,248.92,5421.08,2276.52,13.2,FALSE,PLO,450,689
+67993,33axfep8,比留間,渋谷店,1,2025-06-08 13:06:15,2025-06-08 18:12:07,450,494,1-2,5.08,44,22,4720,1953.76,177.46,64.32,5485.4,2308.68,13,FALSE,PLO,450,494
+68727,33axfep8,比留間,渋谷店,1,2025-06-13 20:21:12,2025-06-13 22:54:17,450,863,1-2,2.54,413,206.5,5133,2160.26,180,423.16,5908.56,2520.26,14,FALSE,PLO,450,863
+69729,33axfep8,比留間,渋谷店,1,2025-06-20 20:34:00,2025-06-20 21:35:00,450,393,1-2,1.01,-57,-28.5,5076,2131.76,181.01,-52.96,5855.6,2493.78,13.77,FALSE,PLO,450,393
+69733,33axfep8,比留間,渋谷店,1,2025-06-20 22:02:07,2025-06-20 22:57:04,450,434,1-2,0.9,-16,-8,5048,2121.36,182.32,-12.4,5835.3,2486,13.63,FALSE,PLO,450,434
+69935,33axfep8,比留間,渋谷店,1,2025-06-22 13:19:33,2025-06-22 18:11:56,750,339,1-2,4.86,-411,-205.5,4637,1915.86,187.18,-391.56,5443.74,2290.22,12.23,FALSE,PLO,750,339
+70765,33axfep8,比留間,渋谷店,1,2025-06-27 22:20:31,2025-06-27 22:50:03,450,397,1-2,0.48,-53,-26.5,4584,1889.36,187.66,-51.08,5392.66,2264.68,12.06,FALSE,PLO,450,397
+71001,33axfep8,比留間,渋谷店,1,2025-06-29 13:57:06,2025-06-29 21:32:55,850,404,1-2,7.58,-446,-223,4138,1666.36,195.24,-415.68,4976.98,2056.84,10.53,FALSE,PLO,850,404
+71806,33axfep8,比留間,渋谷店,1,2025-07-04 19:48:57,2025-07-04 22:54:26,450,476,1-2,3.08,26,13,4164,1679.36,198.32,38.32,5015.3,2076,10.46,FALSE,PLO,450,476
+72086,33axfep8,比留間,渋谷店,1,2025-07-06 14:10:00,2025-07-06 17:08:44,450,1010,1-2,2.96,560,280,4724,1959.36,201.28,571.84,5587.14,2361.92,11.73,FALSE,PLO,450,1010
+72402,33axfep8,比留間,渋谷店,1,2025-07-08 20:33:27,2025-07-08 22:51:03,450,735,1-2,2.28,285,142.5,5009,2101.86,203.56,294.12,5881.26,2508.98,12.32,FALSE,PLO,450,735
+72869,33axfep8,比留間,渋谷店,1,2025-07-11 21:15:52,2025-07-11 22:51:17,450,542,1-2,1.58,92,46,5101,2147.86,205.14,98.32,5979.58,2558.14,12.47,FALSE,PLO,450,542
+73109,33axfep8,比留間,渋谷店,1,2025-07-13 12:58:18,2025-07-13 16:53:58,600,769,1-2,3.91,169,84.5,5270,2232.36,209.05,184.64,6164.22,2650.46,12.67,FALSE,PLO,600,769
+73471,33axfep8,比留間,渋谷店,1,2025-07-15 18:34:35,2025-07-15 22:53:18,450,1233,1-2,4.3,783,391.5,6053,2623.86,213.35,800.2,6964.42,3050.56,14.29,FALSE,PLO,450,1233
+73950,33axfep8,比留間,渋谷店,1,2025-07-18 20:28:23,2025-07-18 22:50:16,450,418,1-2,2.35,-32,-16,6021,2607.86,215.7,-22.6,6941.82,3039.26,14.09,FALSE,PLO,450,418
+74181,33axfep8,比留間,渋谷店,1,2025-07-20 13:11:18,2025-07-20 17:30:27,450,739,1-2,4.31,289,144.5,6310,2752.36,220.01,306.24,7248.06,3192.38,14.51,FALSE,PLO,450,739
+74539,33axfep8,比留間,渋谷店,1,2025-07-22 18:48:13,2025-07-22 22:50:08,450,949,1-2,4.01,499,249.5,6809,3001.86,224.02,515.04,7763.1,3449.9,15.39,FALSE,PLO,450,949
+75026,33axfep8,比留間,渋谷店,1,2025-07-25 20:33:33,2025-07-25 22:55:16,450,900,1-2,2.35,450,225,7259,3226.86,226.37,459.4,8222.5,3679.6,16.25,FALSE,PLO,450,900
+75281,33axfep8,比留間,渋谷店,1,2025-07-27 12:45:57,2025-07-27 17:22:56,750,849,1-2,4.59,99,49.5,7358,3276.36,230.96,117.36,8339.86,3738.28,16.18,FALSE,PLO,750,849
+76495,33axfep8,比留間,渋谷店,1,2025-08-03 15:14:38,2025-08-03 19:04:36,450,801,1-2,3.81,351,175.5,7709,3451.86,234.77,366.24,8706.1,3921.4,16.7,FALSE,PLO,450,801
+77346,33axfep8,比留間,渋谷店,1,2025-08-08 19:52:02,2025-08-08 22:54:47,450,634,1-2,3.03,184,92,7893,3543.86,237.8,196.12,8902.22,4019.46,16.9,FALSE,PLO,450,634
+77651,33axfep8,比留間,渋谷店,1,2025-08-10 15:20:00,2025-08-10 22:49:20,900,705,1-2,7.48,-195,-97.5,7698,3446.36,245.28,-165.08,8737.14,3936.92,16.05,FALSE,PLO,900,705
+78010,33axfep8,比留間,渋谷店,1,2025-08-12 20:13:55,2025-08-12 22:48:15,450,744,1-2,2.56,294,147,7992,3593.36,247.84,304.24,9041.38,4089.04,16.49,FALSE,PLO,450,744
+78491,33axfep8,比留間,渋谷店,1,2025-08-15 20:26:54,2025-08-15 22:56:56,450,1280,1-2,2.5,830,415,8822,4008.36,250.34,840,9881.38,4509.04,18.01,FALSE,PLO,450,1280
+78750,33axfep8,比留間,渋谷店,1,2025-08-17 19:12:27,2025-08-17 22:51:13,450,339,1-2,3.63,-111,-55.5,8711,3952.86,253.97,-96.48,9784.9,4460.8,17.56,FALSE,PLO,450,339
+79348,33axfep8,比留間,渋谷店,1,2025-08-21 20:42:34,2025-08-21 22:52:32,1200,1280,5-5-10-20,2.15,80,16,8791,3968.86,256.12,101.5,9886.4,4481.1,17.49,FALSE,PLO with Rock,1200,1280
+79521,33axfep8,比留間,渋谷店,1,2025-08-22 21:56:54,2025-08-22 22:52:49,450,921,1-2,0.91,471,235.5,9262,4204.36,257.03,474.64,10361.04,4718.42,18.35,FALSE,PLO,450,921
+79726,33axfep8,比留間,渋谷店,1,2025-08-24 13:02:56,2025-08-24 17:04:59,650,1712,1-2,4.03,1062,531,10324,4735.36,261.06,1078.12,11439.16,5257.48,20.13,FALSE,PLO,650,1712
+80610,33axfep8,比留間,渋谷店,1,2025-08-29 20:48:40,2025-08-29 22:52:02,450,670,1-2,2.04,220,110,10544,4845.36,263.1,228.16,11667.32,5371.56,20.41,FALSE,PLO,450,670
+80898,33axfep8,比留間,渋谷店,1,2025-08-31 13:19:53,2025-08-31 16:54:00,450,527,1-2,3.56,77,38.5,10621,4883.86,266.66,91.24,11758.56,5417.18,20.31,FALSE,PLO,450,527
+81833,33axfep8,比留間,渋谷店,1,2025-09-05 20:44:48,2025-09-05 22:47:00,450,0,1-2,2.03,-450,-225,10171,4658.86,268.69,-441.88,11316.68,5196.24,19.33,FALSE,PLO,450,0
+82087,33axfep8,比留間,渋谷店,1,2025-09-07 12:57:35,2025-09-07 18:00:17,450,650,1-2,5.03,200,100,10371,4758.86,273.72,220.12,11536.8,5306.3,19.38,FALSE,PLO,450,650
+82484,33axfep8,比留間,渋谷店,1,2025-09-09 20:37:46,2025-09-09 22:50:18,450,447,1-2,2.2,-3,-1.5,10368,4757.36,275.92,5.8,11542.6,5309.2,19.24,FALSE,PLO,450,447
+83185,33axfep8,比留間,渋谷店,1,2025-09-14 15:05:07,2025-09-14 22:50:26,450,519,1-2,7.75,69,34.5,10437,4791.86,283.67,100,11642.6,5359.2,18.89,FALSE,PLO,450,519
+83999,33axfep8,比留間,渋谷店,1,2025-09-19 19:35:47,2025-09-19 22:57:48,450,834,1-2,3.36,384,192,10821,4983.86,287.03,397.44,12040.04,5557.92,19.36,FALSE,PLO,450,834
+85328,33axfep8,比留間,渋谷店,1,2025-09-28 13:29:01,2025-09-28 17:54:10,450,593,1-2,4.41,143,71.5,11094,5068.36,291.89,160.64,12339.68,5652.14,19.36,FALSE,PLO,450,593
+85678,33axfep8,比留間,渋谷店,1,2025-09-30 19:31:41,2025-09-30 22:52:24,450,499,1-2,3.33,49,24.5,11143,5092.86,295.22,62.32,12402,5683.3,19.25,FALSE,PLO,450,499
+86483,33axfep8,比留間,渋谷店,1,2025-10-07 20:28:09,2025-10-07 22:47:40,450,407,1-2,2.31,-43,-21.5,11100,5071.36,297.53,-33.76,12368.24,5666.42,19.04,FALSE,PLO,450,407
+86738,33axfep8,比留間,渋谷店,1,2025-10-10 20:15:29,2025-10-10 22:48:09,450,375,1-2,2.53,-75,-37.5,11025,5033.86,300.06,-64.88,12303.36,5633.98,18.77,FALSE,PLO,450,375
+86944,33axfep8,比留間,渋谷店,1,2025-10-12 18:22:36,2025-10-12 20:09:08,450,372,1-2,1.76,-78,-39,10947,4994.86,301.82,-70.96,12232.4,5598.5,18.54,FALSE,PLO,450,372
+87311,33axfep8,比留間,渋谷店,1,2025-10-16 19:00:08,2025-10-16 22:47:14,101000,102230,5-5-10-20,3.78,1230,246,12177,5240.86,305.6,1267.8,13500.2,5852.06,19.14,100000集計,PLO with Rock,1000,2230
+88131,33axfep8,比留間,渋谷店,1,2025-10-24 21:20:03,2025-10-24 22:48:04,450,470,1-2,1.46,20,10,12197,5250.86,307.06,25.84,13526.04,5864.98,19.1,FALSE,PLO,450,470
+88324,33axfep8,比留間,渋谷店,1,2025-10-26 12:52:37,2025-10-26 18:43:28,450,837,1-2,5.83,387,193.5,12584,5444.36,312.89,410.32,13936.36,6070.14,19.4,FALSE,PLO,450,837
+88931,33axfep8,比留間,渋谷店,1,2025-10-31 20:36:13,2025-10-31 22:48:46,450,551,1-2,2.2,101,50.5,12685,5494.86,315.09,109.8,14046.16,6125.04,19.43,FALSE,PLO,450,551`;
+
+        // CSVデータを読み込んで初期化する関数
+        function loadCSVData() {
+            try {
+                const parsedData = parseCSV(csvData);
+                // 全データをsessionDataに保存（統計計算用）
+                sessionData = parsedData;
+                
+                // 2025年のデータのみをフィルタリング（表示用）
+                const data2025 = sessionData.filter(s => s.date.startsWith('2025-'));
+                
+                // 初期表示は2025年のデータのみ
+                currentData = data2025;
+                chartState.originalData = data2025;
+                
+                // 統計情報の更新（全データで計算、ただし2025年のみを表示）
+                updateStats();
+                
+                // 初期表示（2025年のデータのみ）
+                renderTable(data2025);
+                drawLineChart();
+                
+                // 日付範囲の初期値を設定（2025年のデータのみを対象）
+                const dateRange = getDateRange(data2025);
+                if (dateRange.firstDate && dateRange.lastDate) {
+                    document.getElementById('startDate').value = dateRange.firstDate;
+                    document.getElementById('endDate').value = dateRange.lastDate;
+                    
+                    // ヘッダーの日付範囲を更新
+                    const dateRangeElement = document.getElementById('dateRange');
+                    if (dateRangeElement) {
+                        const firstDateFormatted = formatDate(dateRange.firstDate);
+                        const lastDateFormatted = formatDate(dateRange.lastDate);
+                        dateRangeElement.textContent = `${firstDateFormatted}〜${lastDateFormatted}`;
+                    }
+                }
+                
+                // データポイントのイベントリスナーを設定
+                setupDataPointListeners();
+            } catch (error) {
+                console.error('データ読み込みエラー:', error);
+                document.body.innerHTML = `<div style="padding: 20px; color: #ff6b6b;"><h2>エラー</h2><p>データの読み込みに失敗しました。</p><p>${error.message}</p></div>`;
+            }
+        }
+
+        // CSVパーサー関数
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim());
+            if (lines.length < 2) return [];
+            
+            // ヘッダー行を解析
+            const headers = lines[0].split(',');
+            const headerMap = {};
+            headers.forEach((header, index) => {
+                headerMap[header.trim()] = index;
+            });
+            
+            // データ行を解析
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                // CSVの値を正しく解析（カンマが含まれる可能性を考慮）
+                const values = parseCSVLine(line);
+                
+                if (values.length < headers.length) continue;
+                
+                // Check-inから日付を抽出（"2025-01-07 17:02:47" -> "2025-01-07"）
+                const checkIn = values[headerMap['Check-in']] || '';
+                const date = checkIn.split(' ')[0];
+                
+                // mod.Buy-inまたはBuy-inを使用
+                const modBuyin = values[headerMap['mod.Buy-in']] || '';
+                const buyin = modBuyin ? parseFloat(modBuyin) : parseFloat(values[headerMap['Buy-in']] || 0);
+                
+                // mod.Cash-outまたはCash-outを使用
+                const modCashout = values[headerMap['mod.Cash-out']] || '';
+                const cashout = modCashout ? parseFloat(modCashout) : parseFloat(values[headerMap['Cash-out']] || 0);
+                
+                // Result(BB)を使用（2倍して格納、表示時に/2する）
+                const resultBB = parseFloat(values[headerMap['Result(BB)']] || 0);
+                const result = resultBB * 2;
+                
+                // Result（pt単位）を取得（換算率計算用）
+                const resultPT = parseFloat(values[headerMap['Result']] || 0);
+                
+                // Playing-Timeを使用
+                const time = parseFloat(values[headerMap['Playing-Time']] || 0);
+                
+                // Total-Playing-Timeを取得（最後のセッションで使用）
+                const totalPlayingTime = parseFloat(values[headerMap['Total-Playing-Time']] || 0);
+                
+                // Net-Result(BB)を使用（2倍して格納、表示時に/2する）
+                const netResultBB = parseFloat(values[headerMap['Net-Result(BB)']] || 0);
+                const cumulative = netResultBB * 2;
+                
+                // Table情報を取得（テーブルレベル判定用）
+                const table = values[headerMap['Table']] || '';
+                
+                // Game情報を取得（add.Game または Game に対応）
+                const game = values[headerMap['add.Game']] || values[headerMap['Game']] || '';
+                
+                // bb/pt換算率を計算（Result(BB)が0の場合はデフォルト値を使用）
+                let bbToPTRatio = 2; // デフォルト: 1bb = 2pt
+                if (resultBB !== 0) {
+                    bbToPTRatio = resultPT / resultBB; // Result(pt) / Result(BB) = pt/bb
+                }
+                
+                data.push({
+                    date: date,
+                    buyin: buyin,
+                    cashout: cashout,
+                    result: result,
+                    time: time,
+                    totalPlayingTime: totalPlayingTime, // 累計プレー時間を保存
+                    cumulative: cumulative,
+                    table: table,
+                    game: game,
+                    bbToPTRatio: bbToPTRatio
+                });
+            }
+            
+            // 日付順にソート
+            data.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            return data;
+        }
+
+        // CSV行を正しく解析する関数（カンマが値に含まれる場合に対応）
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            
+            return values;
+        }
+
+        // セッションデータからbb/pt換算率を取得する関数
+        // （各セッションのbbToPTRatioプロパティを使用）
+        function getBBToPTRatio(session) {
+            // CSVから計算された換算率を使用
+            return session.bbToPTRatio || 2; // デフォルト: 1bb = 2pt
+        }
+
+        // 単位切り替え関数
+        function toggleUnit() {
+            const toggle = document.getElementById('unitToggle');
+            displayUnit = toggle.checked ? 'pt' : 'bb';
+            updateStats();
+            drawLineChart();
+            renderTable(currentData);
+        }
+
+        // グラフ表示モード切り替え関数
+        function setChartMode(mode) {
+            chartState.displayMode = mode;
+            
+            // ボタンのアクティブ状態を更新
+            document.getElementById('cumulativeBtn').classList.remove('active');
+            document.getElementById('movingAvgBtn').classList.remove('active');
+            
+            if (mode === 'cumulative') {
+                document.getElementById('cumulativeBtn').classList.add('active');
+            } else {
+                document.getElementById('movingAvgBtn').classList.add('active');
+            }
+            
+            // グラフを再描画
+            drawLineChart();
+        }
+
+        // 1ヶ月移動平均を計算する関数（累計結果の移動平均）
+        function calculateMovingAverage(displayData, targetIndex) {
+            const targetDate = new Date(displayData[targetIndex].date);
+            const oneMonthAgo = new Date(targetDate);
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            
+            // 過去1ヶ月間のセッション時点での累計値を収集
+            const cumulativeValues = [];
+            
+            for (let i = 0; i <= targetIndex; i++) {
+                const sessionDate = new Date(displayData[i].date);
+                if (sessionDate >= oneMonthAgo && sessionDate <= targetDate) {
+                    // その時点での累計値を計算
+                    let cumulative = 0;
+                    if (displayUnit === 'pt') {
+                        // pt単位で累計値を計算
+                        for (let j = 0; j <= i; j++) {
+                            const ratio = getBBToPTRatio(displayData[j]);
+                            const sessionResultBB = displayData[j].result / 2;
+                            cumulative += sessionResultBB * ratio;
+                        }
+                    } else {
+                        // bb単位
+                        cumulative = displayData[i].cumulative / 2;
+                    }
+                    cumulativeValues.push(cumulative);
+                }
+            }
+            
+            if (cumulativeValues.length === 0) {
+                // 過去1ヶ月のデータがない場合は、その時点での累計値を返す
+                if (displayUnit === 'pt') {
+                    let cumulative = 0;
+                    for (let j = 0; j <= targetIndex; j++) {
+                        const ratio = getBBToPTRatio(displayData[j]);
+                        const sessionResultBB = displayData[j].result / 2;
+                        cumulative += sessionResultBB * ratio;
+                    }
+                    return cumulative;
+                } else {
+                    return displayData[targetIndex].cumulative / 2;
+                }
+            }
+            
+            // 累計値の平均を計算
+            const sum = cumulativeValues.reduce((acc, val) => acc + val, 0);
+            return sum / cumulativeValues.length;
+        }
+
+        // 統計情報を更新する関数
+        function updateStats() {
+            if (sessionData.length === 0) return;
+            
+            // 2025年のデータのみで統計を計算
+            const data2025 = sessionData.filter(s => s.date.startsWith('2025-'));
+            if (data2025.length === 0) return;
+            
+            const totalSessions = data2025.length;
+            const wins = data2025.filter(s => s.result > 0).length;
+            const losses = data2025.filter(s => s.result < 0).length;
+            const winRate = totalSessions > 0 ? Math.round((wins / totalSessions) * 100) : 0;
+            
+            // 累計結果の計算（pt単位で正確に計算）
+            let totalResultPT = 0;
+            // 各セッションのPlaying-Timeを合計
+            const totalTime = data2025.reduce((sum, s) => sum + s.time, 0);
+            
+            // 平均セッション時間を計算
+            const avgSessionTime = totalSessions > 0 ? (totalTime / totalSessions) : 0;
+            
+            // 各セッションの結果をpt単位で累計
+            data2025.forEach(session => {
+                const ratio = getBBToPTRatio(session);
+                const sessionResultBB = session.result / 2; // BB単位
+                const sessionResultPT = sessionResultBB * ratio; // pt単位
+                totalResultPT += sessionResultPT;
+            });
+            
+            // 最後のセッションの累計BB値を取得（2025年のデータのみ）
+            const totalResultBB = data2025[data2025.length - 1].cumulative / 2;
+            
+            // 時給の計算（pt単位で計算）
+            const hourlyRateBB = totalTime > 0 ? (totalResultBB / totalTime) : 0;
+            const hourlyRatePT = totalTime > 0 ? (totalResultPT / totalTime) : 0;
+            
+            // 最高勝ち・最高負けの計算（各セッションのテーブルレベルに応じて変換）
+            let maxWinBB = -Infinity;
+            let maxWinPT = -Infinity;
+            let maxWinDate = '';
+            let maxLossBB = Infinity;
+            let maxLossPT = Infinity;
+            let maxLossDate = '';
+            
+            // 勝ちセッションと負けセッションの平均と中央値を計算
+            let totalWinBB = 0;
+            let totalWinPT = 0;
+            let winCount = 0;
+            let totalLossBB = 0;
+            let totalLossPT = 0;
+            let lossCount = 0;
+            
+            // 中央値計算用の配列
+            const winResultsBB = [];
+            const winResultsPT = [];
+            const lossResultsBB = [];
+            const lossResultsPT = [];
+            
+            data2025.forEach(session => {
+                const ratio = getBBToPTRatio(session);
+                const sessionResultBB = session.result / 2;
+                const sessionResultPT = sessionResultBB * ratio;
+                
+                if (sessionResultBB > maxWinBB) {
+                    maxWinBB = sessionResultBB;
+                    maxWinPT = sessionResultPT;
+                    maxWinDate = session.date;
+                }
+                if (sessionResultBB < maxLossBB) {
+                    maxLossBB = sessionResultBB;
+                    maxLossPT = sessionResultPT;
+                    maxLossDate = session.date;
+                }
+                
+                // 勝ちセッションと負けセッションの合計を計算
+                if (sessionResultBB > 0) {
+                    totalWinBB += sessionResultBB;
+                    totalWinPT += sessionResultPT;
+                    winCount++;
+                    winResultsBB.push(sessionResultBB);
+                    winResultsPT.push(sessionResultPT);
+                } else if (sessionResultBB < 0) {
+                    totalLossBB += sessionResultBB;
+                    totalLossPT += sessionResultPT;
+                    lossCount++;
+                    lossResultsBB.push(sessionResultBB);
+                    lossResultsPT.push(sessionResultPT);
+                }
+            });
+            
+            // 平均を計算
+            const avgWinBB = winCount > 0 ? totalWinBB / winCount : 0;
+            const avgWinPT = winCount > 0 ? totalWinPT / winCount : 0;
+            const avgLossBB = lossCount > 0 ? totalLossBB / lossCount : 0;
+            const avgLossPT = lossCount > 0 ? totalLossPT / lossCount : 0;
+            
+            // 中央値を計算
+            let medianWinBB = 0;
+            let medianWinPT = 0;
+            let medianLossBB = 0;
+            let medianLossPT = 0;
+            
+            if (winResultsBB.length > 0) {
+                const sortedWinsBB = [...winResultsBB].sort((a, b) => a - b);
+                const sortedWinsPT = [...winResultsPT].sort((a, b) => a - b);
+                const mid = Math.floor(sortedWinsBB.length / 2);
+                if (sortedWinsBB.length % 2 === 0) {
+                    medianWinBB = (sortedWinsBB[mid - 1] + sortedWinsBB[mid]) / 2;
+                    medianWinPT = (sortedWinsPT[mid - 1] + sortedWinsPT[mid]) / 2;
+                } else {
+                    medianWinBB = sortedWinsBB[mid];
+                    medianWinPT = sortedWinsPT[mid];
+                }
+            }
+            
+            if (lossResultsBB.length > 0) {
+                const sortedLossesBB = [...lossResultsBB].sort((a, b) => a - b);
+                const sortedLossesPT = [...lossResultsPT].sort((a, b) => a - b);
+                const mid = Math.floor(sortedLossesBB.length / 2);
+                if (sortedLossesBB.length % 2 === 0) {
+                    medianLossBB = (sortedLossesBB[mid - 1] + sortedLossesBB[mid]) / 2;
+                    medianLossPT = (sortedLossesPT[mid - 1] + sortedLossesPT[mid]) / 2;
+                } else {
+                    medianLossBB = sortedLossesBB[mid];
+                    medianLossPT = sortedLossesPT[mid];
+                }
+            }
+            
+            // 表示単位に応じて値を選択
+            const totalResult = displayUnit === 'pt' ? totalResultPT : totalResultBB;
+            const hourlyRate = displayUnit === 'pt' ? hourlyRatePT : hourlyRateBB;
+            const maxWin = displayUnit === 'pt' ? maxWinPT : maxWinBB;
+            const maxLoss = displayUnit === 'pt' ? maxLossPT : maxLossBB;
+            const avgWin = displayUnit === 'pt' ? avgWinPT : avgWinBB;
+            const avgLoss = displayUnit === 'pt' ? avgLossPT : avgLossBB;
+            const medianWin = displayUnit === 'pt' ? medianWinPT : medianWinBB;
+            const medianLoss = displayUnit === 'pt' ? medianLossPT : medianLossBB;
+            
+            // 統計カードを更新（セクションごとに更新）
+            const allStatsSections = document.querySelectorAll('.stats-section');
+            
+            // プレー実績セクション（1番目）
+            if (allStatsSections.length >= 1) {
+                const playStatsCards = allStatsSections[0].querySelectorAll('.stat-card');
+                if (playStatsCards.length >= 4) {
+                    const value0 = playStatsCards[0].querySelector('.value');
+                    if (value0) value0.textContent = `${totalTime.toFixed(1)}h`;
+                    const value1 = playStatsCards[1].querySelector('.value');
+                    if (value1) value1.textContent = totalSessions;
+                    const value2 = playStatsCards[2].querySelector('.value');
+                    if (value2) value2.textContent = `${winRate}%`;
+                    const p2 = playStatsCards[2].querySelector('p');
+                    if (p2) p2.textContent = `${wins}W / ${losses}L`;
+                    const value3 = playStatsCards[3].querySelector('.value');
+                    if (value3) value3.textContent = `${avgSessionTime.toFixed(1)}h`;
+                }
+            }
+            
+            // 収支セクション（2番目）
+            if (allStatsSections.length >= 2) {
+                const resultStatsCards = allStatsSections[1].querySelectorAll('.stat-card');
+                if (resultStatsCards.length >= 4) {
+                    const rValue0 = resultStatsCards[0].querySelector('.value');
+                    if (rValue0) rValue0.textContent = `${totalResult > 0 ? '+' : ''}${totalResult.toFixed(1)}${displayUnit}`;
+                    const rValue1 = resultStatsCards[1].querySelector('.value');
+                    if (rValue1) rValue1.textContent = `${hourlyRate > 0 ? '+' : ''}${hourlyRate.toFixed(1)}${displayUnit}/h`;
+                    const rValue2 = resultStatsCards[2].querySelector('.value');
+                    if (rValue2) rValue2.textContent = `${maxWin > 0 ? '+' : ''}${maxWin.toFixed(1)}${displayUnit}`;
+                    const rP2 = resultStatsCards[2].querySelector('p');
+                    if (rP2) rP2.textContent = maxWinDate;
+                    const rValue3 = resultStatsCards[3].querySelector('.value');
+                    if (rValue3) rValue3.textContent = `${maxLoss < 0 ? '' : '+'}${maxLoss.toFixed(1)}${displayUnit}`;
+                    const rP3 = resultStatsCards[3].querySelector('p');
+                    if (rP3) rP3.textContent = maxLossDate;
+                }
+            }
+            
+            // 統計指標セクション（3番目）
+            if (allStatsSections.length >= 3) {
+                const analyticsStatsCards = allStatsSections[2].querySelectorAll('.stat-card');
+                if (analyticsStatsCards.length >= 4) {
+                    const aValue0 = analyticsStatsCards[0].querySelector('.value');
+                    if (aValue0) aValue0.textContent = `${avgWin > 0 ? '+' : ''}${avgWin.toFixed(1)}${displayUnit}`;
+                    
+                    const aValue1 = analyticsStatsCards[1].querySelector('.value');
+                    if (aValue1) aValue1.textContent = `${avgLoss < 0 ? '' : '+'}${avgLoss.toFixed(1)}${displayUnit}`;
+                    
+                    const aValue2 = analyticsStatsCards[2].querySelector('.value');
+                    if (aValue2) aValue2.textContent = `${medianWin > 0 ? '+' : ''}${medianWin.toFixed(1)}${displayUnit}`;
+                    
+                    const aValue3 = analyticsStatsCards[3].querySelector('.value');
+                    if (aValue3) aValue3.textContent = `${medianLoss < 0 ? '' : '+'}${medianLoss.toFixed(1)}${displayUnit}`;
+                }
+            }
+        }
 
         function sortData(column) {
             // 同じカラムをクリックした場合は昇順・降順を切り替え
@@ -697,6 +1326,8 @@
                     case 'result':
                     case 'time':
                     case 'cumulative':
+                    case 'game':
+                    case 'table':
                         aVal = a[column];
                         bVal = b[column];
                         break;
@@ -717,6 +1348,10 @@
             const tbody = document.getElementById('sessionTableBody');
             tbody.innerHTML = '';
             
+            // pt単位の場合、累計値を正確に計算するため、全セッションから累計を再計算
+            let cumulativePT = 0;
+            const sessionDataSorted = [...sessionData].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
             data.forEach(session => {
                 const row = document.createElement('tr');
                 
@@ -726,13 +1361,50 @@
                 const buyinClass = session.buyin >= 800 ? 'buyin-high' : 
                                  session.buyin >= 600 ? 'buyin-medium' : 'buyin-low';
                 
+                // 単位に応じた値の計算
+                // buyinとcashoutは既にpt単位なので、pt表記の場合はそのまま使用
+                // bb表記の場合は、ptからbbに換算
+                let buyinDisplay, cashoutDisplay, resultDisplay, cumulativeDisplay;
+                
+                const ratio = getBBToPTRatio(session);
+                
+                if (displayUnit === 'pt') {
+                    // pt表記：buyinとcashoutはそのままpt単位の値を使用
+                    buyinDisplay = session.buyin;
+                    cashoutDisplay = session.cashout;
+                    resultDisplay = (session.result / 2) * ratio;
+                    
+                    // 累計値をpt単位で計算（表示中のデータの順序に基づく）
+                    const sessionIndex = sessionDataSorted.findIndex(s => 
+                        s.date === session.date && s.result === session.result
+                    );
+                    if (sessionIndex >= 0) {
+                        cumulativePT = 0;
+                        for (let i = 0; i <= sessionIndex; i++) {
+                            const r = getBBToPTRatio(sessionDataSorted[i]);
+                            cumulativePT += (sessionDataSorted[i].result / 2) * r;
+                        }
+                        cumulativeDisplay = cumulativePT;
+                    } else {
+                        cumulativeDisplay = (session.cumulative / 2) * ratio;
+                    }
+                } else {
+                    // bb表記：ptからbbに換算（buyinとcashoutをptからbbに変換）
+                    buyinDisplay = session.buyin / ratio;
+                    cashoutDisplay = session.cashout / ratio;
+                    resultDisplay = session.result / 2;
+                    cumulativeDisplay = session.cumulative / 2;
+                }
+                
                 row.innerHTML = `
                     <td class="date-bold">${session.date}</td>
-                    <td class="${buyinClass}">${(session.buyin / 2).toFixed(1)}bb</td>
-                    <td class="cashout-bold">${(session.cashout / 2).toFixed(1)}bb</td>
-                    <td class="${resultClass}">${session.result > 0 ? '+' : ''}${(session.result / 2).toFixed(1)}bb</td>
+                    <td>${session.game || ''}</td>
+                    <td>${session.table || ''}</td>
+                    <td class="${buyinClass}">${buyinDisplay.toFixed(1)}${displayUnit}</td>
+                    <td class="cashout-bold">${cashoutDisplay.toFixed(1)}${displayUnit}</td>
+                    <td class="${resultClass}">${resultDisplay > 0 ? '+' : ''}${resultDisplay.toFixed(1)}${displayUnit}</td>
                     <td class="time-bold">${session.time}h</td>
-                    <td class="${session.cumulative >= 0 ? 'result-positive' : 'result-negative'}">${session.cumulative > 0 ? '+' : ''}${(session.cumulative / 2).toFixed(1)}bb</td>
+                    <td class="${cumulativeDisplay >= 0 ? 'result-positive' : 'result-negative'}">${cumulativeDisplay > 0 ? '+' : ''}${cumulativeDisplay.toFixed(1)}${displayUnit}</td>
                 `;
                 
                 tbody.appendChild(row);
@@ -744,17 +1416,19 @@
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            let filteredData = sessionData;
+            // 2025年のデータのみをベースにする
+            const data2025 = sessionData.filter(s => s.date.startsWith('2025-'));
+            let filteredData = data2025;
             
             switch(filter) {
                 case 'positive':
-                    filteredData = sessionData.filter(session => session.result > 0);
+                    filteredData = data2025.filter(session => session.result > 0);
                     break;
                 case 'negative':
-                    filteredData = sessionData.filter(session => session.result < 0);
+                    filteredData = data2025.filter(session => session.result < 0);
                     break;
                 default:
-                    filteredData = sessionData;
+                    filteredData = data2025;
             }
             
             // フィルター後のデータを現在のデータとして設定
@@ -766,6 +1440,8 @@
                 th.classList.remove('sort-asc', 'sort-desc');
             });
             
+            // 統計を更新
+            updateStats();
             renderTable(filteredData);
         }
 
@@ -775,47 +1451,53 @@
             document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // 日付入力フィールドをリセット
-            document.getElementById('startDate').value = '2025-01-07';
-            document.getElementById('endDate').value = '2025-10-12';
-            
             chartState.currentPeriod = period;
             
-            let filteredData = sessionData;
+            // 2025年のデータのみをベースにする
+            const data2025 = sessionData.filter(s => s.date.startsWith('2025-'));
+            
+            // 日付入力フィールドをリセット（データから動的に取得）
+            const dateRange = getDateRange(data2025);
+            if (dateRange.firstDate && dateRange.lastDate) {
+                document.getElementById('startDate').value = dateRange.firstDate;
+                document.getElementById('endDate').value = dateRange.lastDate;
+            }
+            let filteredData = data2025;
             
             switch(period) {
                 case 'p1':
-                    filteredData = sessionData.filter(session => {
+                    filteredData = data2025.filter(session => {
                         const month = new Date(session.date).getMonth() + 1;
                         return month >= 1 && month <= 2;
                     });
                     break;
                 case 'p2':
-                    filteredData = sessionData.filter(session => {
+                    filteredData = data2025.filter(session => {
                         const month = new Date(session.date).getMonth() + 1;
                         return month >= 3 && month <= 4;
                     });
                     break;
                 case 'p3':
-                    filteredData = sessionData.filter(session => {
+                    filteredData = data2025.filter(session => {
                         const month = new Date(session.date).getMonth() + 1;
                         return month >= 5 && month <= 6;
                     });
                     break;
                 case 'p4':
-                    filteredData = sessionData.filter(session => {
+                    filteredData = data2025.filter(session => {
                         const month = new Date(session.date).getMonth() + 1;
                         return month >= 7 && month <= 8;
                     });
                     break;
                 case 'p5':
-                    filteredData = sessionData.filter(session => {
+                    filteredData = data2025.filter(session => {
                         const month = new Date(session.date).getMonth() + 1;
                         return month >= 9 && month <= 10;
                     });
                     break;
                 default:
-                    filteredData = sessionData;
+                    // 'all'の場合は2025年のデータのみ
+                    filteredData = data2025;
             }
             
             chartState.originalData = filteredData;
@@ -828,6 +1510,9 @@
             document.querySelectorAll('th').forEach(th => {
                 th.classList.remove('sort-asc', 'sort-desc');
             });
+            
+            // 統計を更新
+            updateStats();
             renderTable(filteredData);
         }
 
@@ -877,6 +1562,9 @@
             document.querySelectorAll('th').forEach(th => {
                 th.classList.remove('sort-asc', 'sort-desc');
             });
+            
+            // 統計を更新
+            updateStats();
             renderTable(filteredData);
         }
 
@@ -898,8 +1586,33 @@
             // 表示用データの取得
             const displayData = chartState.originalData;
             
-            // データの準備 - 動的に最小値・最大値を計算
-            const cumulativeValues = displayData.map(session => session.cumulative / 2); // BB換算
+            // データの準備 - 表示モードに応じて値を計算
+            let values;
+            if (chartState.displayMode === 'movingAverage') {
+                // 1ヶ月移動平均を計算
+                values = displayData.map((session, index) => {
+                    return calculateMovingAverage(displayData, index);
+                });
+            } else {
+                // 累計値を計算
+                if (displayUnit === 'pt') {
+                    // pt単位で累計値を計算
+                    let cumulativePT = 0;
+                    values = displayData.map(session => {
+                        const ratio = getBBToPTRatio(session);
+                        const sessionResultBB = session.result / 2;
+                        const sessionResultPT = sessionResultBB * ratio;
+                        cumulativePT += sessionResultPT;
+                        return cumulativePT;
+                    });
+                } else {
+                    // bb単位
+                    values = displayData.map(session => session.cumulative / 2);
+                }
+            }
+            
+            const cumulativeValues = values;
+            
             const minValue = Math.min(0, Math.min(...cumulativeValues));
             const maxValue = Math.max(0, Math.max(...cumulativeValues));
             const range = maxValue - minValue;
@@ -925,13 +1638,13 @@
                 line.setAttribute('class', 'grid-line');
                 gridLines.appendChild(line);
                 
-                // Y軸ラベル（動的）
+                // Y軸ラベル（動的・単位対応）
                 const value = maxValue - (i / gridSteps) * range;
                 const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 label.setAttribute('x', padding - 22);
                 label.setAttribute('y', y + 7);
                 label.setAttribute('class', 'axis-label y-axis-label');
-                label.textContent = Math.round(value).toLocaleString() + 'bb';
+                label.textContent = Math.round(value).toLocaleString() + displayUnit;
                 axisLabels.appendChild(label);
             }
             
@@ -939,8 +1652,26 @@
             dataPoints.innerHTML = '';
             displayData.forEach((session, index) => {
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                let value;
+                if (chartState.displayMode === 'movingAverage') {
+                    value = calculateMovingAverage(displayData, index);
+                } else {
+                    if (displayUnit === 'pt') {
+                        // pt単位で累計値を計算
+                        let cumulativePT = 0;
+                        for (let j = 0; j <= index; j++) {
+                            const ratio = getBBToPTRatio(displayData[j]);
+                            const sessionResultBB = displayData[j].result / 2;
+                            const sessionResultPT = sessionResultBB * ratio;
+                            cumulativePT += sessionResultPT;
+                        }
+                        value = cumulativePT;
+                    } else {
+                        value = session.cumulative / 2;
+                    }
+                }
                 circle.setAttribute('cx', xScale(index));
-                circle.setAttribute('cy', yScale(session.cumulative / 2)); // BB換算
+                circle.setAttribute('cy', yScale(value));
                 circle.setAttribute('class', 'data-point');
                 circle.setAttribute('data-date', session.date);
                 circle.setAttribute('data-result', session.result);
@@ -954,7 +1685,25 @@
             
             displayData.forEach((session, index) => {
                 const x = xScale(index);
-                const y = yScale(session.cumulative / 2); // BB換算
+                let value;
+                if (chartState.displayMode === 'movingAverage') {
+                    value = calculateMovingAverage(displayData, index);
+                } else {
+                    if (displayUnit === 'pt') {
+                        // pt単位で累計値を計算
+                        let cumulativePT = 0;
+                        for (let j = 0; j <= index; j++) {
+                            const ratio = getBBToPTRatio(displayData[j]);
+                            const sessionResultBB = displayData[j].result / 2;
+                            const sessionResultPT = sessionResultBB * ratio;
+                            cumulativePT += sessionResultPT;
+                        }
+                        value = cumulativePT;
+                    } else {
+                        value = session.cumulative / 2;
+                    }
+                }
+                const y = yScale(value);
                 
                 if (index === 0) {
                     linePathData += `M ${x} ${y}`;
@@ -1001,6 +1750,9 @@
                 label.textContent = displayData[lastIndex].date.substring(5);
                 axisLabels.appendChild(label);
             }
+            
+            // データポイントのイベントリスナーを再設定
+            setupDataPointListeners();
         }
         
         // ツールチップの作成
@@ -1013,42 +1765,87 @@
         
         const tooltip = createTooltip();
         
-        // データポイントのイベントリスナー
-        document.addEventListener('DOMContentLoaded', function() {
+        // データポイントのイベントリスナーを設定する関数
+        function setupDataPointListeners() {
             setTimeout(() => {
                 const points = document.querySelectorAll('.data-point');
                 points.forEach(point => {
-                    point.addEventListener('mouseenter', function(e) {
+                    // 既存のイベントリスナーを削除（重複防止）
+                    const newPoint = point.cloneNode(true);
+                    point.parentNode.replaceChild(newPoint, point);
+                    
+                    newPoint.addEventListener('mouseenter', function(e) {
                         const date = this.getAttribute('data-date');
-                        const result = this.getAttribute('data-result');
-                        const cumulative = this.getAttribute('data-cumulative');
+                        const result = parseFloat(this.getAttribute('data-result'));
+                        const cumulative = parseFloat(this.getAttribute('data-cumulative'));
                         
+                        // 該当セッションを検索
+                        const session = sessionData.find(s => s.date === date && s.result === result && s.cumulative === cumulative);
+                        const displayData = chartState.originalData;
+                        const sessionIndex = displayData.findIndex(s => s.date === date && s.result === result && s.cumulative === cumulative);
+                        
+                        // 単位に応じた表示値の計算
+                        let displayResult, displayValue;
+                        
+                        if (displayUnit === 'pt') {
+                            if (session) {
+                                const ratio = getBBToPTRatio(session);
+                                displayResult = (result / 2) * ratio;
+                            } else {
+                                displayResult = result / 2;
+                            }
+                        } else {
+                            displayResult = result / 2;
+                        }
+                        
+                        // 表示モードに応じた値を計算
+                        if (chartState.displayMode === 'movingAverage' && sessionIndex >= 0) {
+                            displayValue = calculateMovingAverage(displayData, sessionIndex);
+                        } else {
+                            // 累計値を計算
+                            if (displayUnit === 'pt' && session) {
+                                let cumulativePT = 0;
+                                for (let i = 0; i < sessionData.length; i++) {
+                                    if (sessionData[i].date === date && sessionData[i].result === result) {
+                                        break;
+                                    }
+                                    const r = getBBToPTRatio(sessionData[i]);
+                                    cumulativePT += (sessionData[i].result / 2) * r;
+                                }
+                                cumulativePT += displayResult;
+                                displayValue = cumulativePT;
+                            } else {
+                                displayValue = cumulative / 2;
+                            }
+                        }
+                        
+                        const valueLabel = chartState.displayMode === 'movingAverage' ? '1ヶ月移動平均' : '累計結果';
                         tooltip.innerHTML = `
                             <strong>${date}</strong><br>
-                            セッション結果: ${result > 0 ? '+' : ''}${(result / 2).toFixed(1)}bb<br>
-                            累計結果: ${cumulative > 0 ? '+' : ''}${(cumulative / 2).toFixed(1)}bb
+                            セッション結果: ${displayResult > 0 ? '+' : ''}${displayResult.toFixed(1)}${displayUnit}<br>
+                            ${valueLabel}: ${displayValue > 0 ? '+' : ''}${displayValue.toFixed(1)}${displayUnit}
                         `;
                         tooltip.style.opacity = '1';
                     });
                     
-                    point.addEventListener('mousemove', function(e) {
+                    newPoint.addEventListener('mousemove', function(e) {
                         tooltip.style.left = e.pageX + 10 + 'px';
                         tooltip.style.top = e.pageY - 10 + 'px';
                     });
                     
-                    point.addEventListener('mouseleave', function() {
+                    newPoint.addEventListener('mouseleave', function() {
                         tooltip.style.opacity = '0';
                     });
                 });
             }, 100);
-        });
+        }
 
-        // 初期表示
-        renderTable(sessionData);
-        drawLineChart();
+        // ページ読み込み時にCSVデータを読み込む
+        document.addEventListener('DOMContentLoaded', function() {
+            // CSVデータを初期化（埋め込みデータから直接読み込み）
+            loadCSVData();
 
         // テーブルヘッダーのクリックイベントリスナーを追加
-        document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('th.sortable').forEach(th => {
                 th.addEventListener('click', function() {
                     const column = this.dataset.sort;
