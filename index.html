@@ -501,24 +501,27 @@
             }
 
             .unit-switch-container {
-                display: none; /* 元の位置では非表示 */
+                display: none !important; /* 元の位置では完全に非表示 */
             }
 
-            /* プレイヤーの段に単位スイッチを表示するためのスタイル */
-            .header-info-item:nth-child(1) {
-                order: 1; /* プレイヤー */
-            }
-
-            .unit-switch-mobile {
+            /* プレイヤーの上の段に単位スイッチを表示 */
+            .unit-switch-mobile-wrapper {
                 display: flex !important;
+                justify-content: center;
                 align-items: center;
                 gap: 10px;
-                margin-top: 10px;
+                margin-bottom: 15px;
+                padding: 10px 0;
             }
 
-            .unit-switch-mobile .unit-switch-label {
+            .unit-switch-mobile-wrapper .unit-switch-label {
                 font-size: 0.9rem;
                 color: #a0a0a0;
+            }
+
+            /* プレイヤーの段のスタイル */
+            .header-info-item:nth-child(1) {
+                order: 1; /* プレイヤー */
             }
             
             .stats-section {
@@ -879,18 +882,18 @@
                 </label>
             </div>
             <h1>PLOリング成績ダッシュボード</h1>
+            <div class="unit-switch-mobile-wrapper" style="display: none;">
+                <span class="unit-switch-label">単位:</span>
+                <label class="unit-switch">
+                    <input type="checkbox" id="unitToggleMobile" onchange="toggleUnit(event)">
+                    <span class="unit-switch-slider"></span>
+                    <span class="unit-switch-text bb">bb</span>
+                    <span class="unit-switch-text pt">pt</span>
+                </label>
+            </div>
             <div class="header-info">
                 <div class="header-info-item">
                     <p>プレイヤー: <a href="https://x.com/hiruma_poker" target="_blank" style="color: #00d4ff; text-decoration: none;">ヒルマ</a>（<a href="https://note.com/hiruma_poker" target="_blank" style="color: #00d4ff; text-decoration: none;">note</a>）</p>
-                    <div class="unit-switch-mobile" style="display: none;">
-                        <span class="unit-switch-label">単位:</span>
-                        <label class="unit-switch">
-                            <input type="checkbox" id="unitToggleMobile" onchange="toggleUnit(event)">
-                            <span class="unit-switch-slider"></span>
-                            <span class="unit-switch-text bb">bb</span>
-                            <span class="unit-switch-text pt">pt</span>
-                        </label>
-                    </div>
                 </div>
                 <div class="header-info-item">
                     <p>場所: <a href="https://x.com/634pokerroom" target="_blank" style="color: #00d4ff; text-decoration: none;">MUSASHI POKER ROOM 渋谷本店</a></p>
