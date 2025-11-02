@@ -496,12 +496,29 @@
                 order: 6; /* PLO with Rock */
             }
 
+            .header h1 {
+                margin-bottom: 20px;
+            }
+
             .unit-switch-container {
-                position: relative;
-                top: auto;
-                right: auto;
-                justify-content: center;
-                margin-bottom: 15px;
+                display: none; /* 元の位置では非表示 */
+            }
+
+            /* プレイヤーの段に単位スイッチを表示するためのスタイル */
+            .header-info-item:nth-child(1) {
+                order: 1; /* プレイヤー */
+            }
+
+            .unit-switch-mobile {
+                display: flex !important;
+                align-items: center;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .unit-switch-mobile .unit-switch-label {
+                font-size: 0.9rem;
+                color: #a0a0a0;
             }
             
             .stats-section {
@@ -538,17 +555,22 @@
             .chart-controls-row {
                 flex-direction: column;
                 gap: 15px;
+                align-items: stretch;
             }
 
             .chart-mode-selector {
                 width: 100%;
+                display: flex;
                 justify-content: center;
+                gap: 10px;
             }
 
             .period-selector {
                 width: 100%;
+                display: flex;
                 justify-content: center;
                 flex-wrap: wrap;
+                gap: 10px;
             }
 
             .period-btn {
@@ -556,6 +578,13 @@
                 font-size: 0.75rem;
                 min-height: 44px;
                 white-space: nowrap;
+                flex: 1;
+                min-width: 0;
+                max-width: calc(50% - 5px);
+            }
+
+            .chart-mode-selector .period-btn {
+                max-width: calc(50% - 5px);
             }
 
             .date-range-selector {
@@ -563,6 +592,7 @@
                 width: 100%;
                 gap: 10px;
                 flex-wrap: wrap;
+                display: flex;
             }
 
             .date-input-group {
@@ -580,8 +610,10 @@
             .apply-date-btn {
                 padding: 10px 16px;
                 min-height: 44px;
-                align-self: flex-end;
+                align-self: stretch;
                 white-space: nowrap;
+                flex: 1;
+                min-width: 0;
             }
             
             .chart {
@@ -682,6 +714,20 @@
                 flex: 1;
                 min-width: 0;
                 white-space: nowrap;
+                max-width: calc(50% - 5px);
+            }
+
+            .chart-mode-selector .period-btn {
+                max-width: calc(50% - 5px);
+            }
+
+            .date-range-selector {
+                gap: 8px;
+            }
+
+            .apply-date-btn {
+                flex: 1;
+                min-width: 0;
             }
 
             .filter-btn {
@@ -826,7 +872,7 @@
             <div class="unit-switch-container">
                 <span class="unit-switch-label">単位:</span>
                 <label class="unit-switch">
-                    <input type="checkbox" id="unitToggle" onchange="toggleUnit()">
+                    <input type="checkbox" id="unitToggle" onchange="toggleUnit(event)">
                     <span class="unit-switch-slider"></span>
                     <span class="unit-switch-text bb">bb</span>
                     <span class="unit-switch-text pt">pt</span>
@@ -836,6 +882,15 @@
             <div class="header-info">
                 <div class="header-info-item">
                     <p>プレイヤー: <a href="https://x.com/hiruma_poker" target="_blank" style="color: #00d4ff; text-decoration: none;">ヒルマ</a>（<a href="https://note.com/hiruma_poker" target="_blank" style="color: #00d4ff; text-decoration: none;">note</a>）</p>
+                    <div class="unit-switch-mobile" style="display: none;">
+                        <span class="unit-switch-label">単位:</span>
+                        <label class="unit-switch">
+                            <input type="checkbox" id="unitToggleMobile" onchange="toggleUnit(event)">
+                            <span class="unit-switch-slider"></span>
+                            <span class="unit-switch-text bb">bb</span>
+                            <span class="unit-switch-text pt">pt</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="header-info-item">
                     <p>場所: <a href="https://x.com/634pokerroom" target="_blank" style="color: #00d4ff; text-decoration: none;">MUSASHI POKER ROOM 渋谷本店</a></p>
@@ -1308,9 +1363,29 @@
         }
 
         // 単位切り替え関数
-        function toggleUnit() {
+        function toggleUnit(event) {
             const toggle = document.getElementById('unitToggle');
-            displayUnit = toggle.checked ? 'pt' : 'bb';
+            const toggleMobile = document.getElementById('unitToggleMobile');
+            
+            // どちらのトグルが変更されたかを判定
+            let isChecked;
+            if (event && event.target) {
+                isChecked = event.target.checked;
+                // もう一方のトグルも同期
+                if (event.target.id === 'unitToggle' && toggleMobile) {
+                    toggleMobile.checked = isChecked;
+                } else if (event.target.id === 'unitToggleMobile' && toggle) {
+                    toggle.checked = isChecked;
+                }
+            } else {
+                // イベントがない場合はデスクトップトグルから取得
+                isChecked = toggle ? toggle.checked : (toggleMobile ? toggleMobile.checked : false);
+                // 両方のトグルを同期
+                if (toggle) toggle.checked = isChecked;
+                if (toggleMobile) toggleMobile.checked = isChecked;
+            }
+            
+            displayUnit = isChecked ? 'pt' : 'bb';
             updateStats();
             drawLineChart();
             renderTable(currentData);
@@ -2151,6 +2226,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             // CSVデータを初期化（埋め込みデータから直接読み込み）
             loadCSVData();
+
+            // 単位トグルの同期（初期化時）
+            const toggle = document.getElementById('unitToggle');
+            const toggleMobile = document.getElementById('unitToggleMobile');
+            if (toggle && toggleMobile) {
+                // デスクトップトグルの状態をモバイルトグルに同期
+                toggleMobile.checked = toggle.checked;
+            }
 
             // テーブルヘッダーのクリックイベントリスナーを追加
             document.querySelectorAll('th.sortable').forEach(th => {
