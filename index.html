@@ -305,6 +305,25 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* iOSでのスムーズスクロール */
+        }
+
+        .data-table::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .data-table::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .data-table::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .data-table::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.5);
         }
 
         .table-title {
@@ -433,6 +452,14 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px 0;
+            }
+
             .header h1 {
                 font-size: 2rem;
             }
@@ -442,25 +469,210 @@
                 gap: 15px;
                 max-width: 100%;
             }
+
+            .unit-switch-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+            
+            .stats-section {
+                margin-bottom: 30px;
+            }
+
+            .stats-section-title {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
             
             .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
             }
             
+            .stat-card {
+                padding: 20px;
+            }
+
             .stat-card .value {
-                font-size: 1.5rem;
+                font-size: 1.8rem;
+            }
+
+            .chart-container {
+                padding: 20px;
+            }
+
+            .chart-title {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
+            .chart-controls-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .chart-mode-selector {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .period-selector {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .period-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-height: 44px;
+            }
+
+            .date-range-selector {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .date-input-group {
+                width: 100%;
+            }
+
+            .date-input {
+                width: 100%;
+                font-size: 16px;
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+
+            .apply-date-btn {
+                width: 100%;
+                padding: 10px 16px;
+                min-height: 44px;
+                align-self: stretch;
             }
             
+            .chart {
+                height: 400px;
+                padding: 15px;
+            }
+
+            .axis-label {
+                font-size: 14px;
+            }
+
+            /* .data-pointのr属性はJavaScript側で動的に設定 */
+            
+            .data-table {
+                padding: 20px;
+                overflow-x: auto;
+            }
+
+            .table-title {
+                font-size: 1.3rem;
+            }
+
             .filters {
                 justify-content: center;
+                gap: 10px;
+            }
+
+            .filter-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-height: 44px;
             }
             
             table {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
+                min-width: 800px;
             }
             
             th, td {
                 padding: 8px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .header-info-item p {
+                font-size: 0.85rem;
+            }
+
+            .stats-section-title {
+                font-size: 1.3rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card h3 {
+                font-size: 0.85rem;
+            }
+
+            .stat-card .value {
+                font-size: 1.6rem;
+            }
+
+            .chart-container {
+                padding: 15px;
+            }
+
+            .chart-title {
+                font-size: 1.1rem;
+            }
+
+            .chart {
+                height: 350px;
+                padding: 10px;
+            }
+
+            .axis-label {
+                font-size: 12px;
+            }
+
+            .period-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .filter-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .data-table {
+                padding: 15px;
+            }
+
+            .table-title {
+                font-size: 1.1rem;
+            }
+
+            table {
+                font-size: 0.7rem;
+            }
+
+            th, td {
+                padding: 6px 8px;
             }
         }
 
@@ -1619,9 +1831,13 @@
             const dataPoints = document.getElementById('dataPoints');
             const axisLabels = document.getElementById('axisLabels');
             
+            // モバイル環境の検出
+            const isMobile = window.innerWidth <= 768;
+            const isSmallMobile = window.innerWidth <= 480;
+            
             const width = 2100;
             const height = 1125;
-            const padding = 120;
+            const padding = isSmallMobile ? 60 : (isMobile ? 80 : 120);
             const chartWidth = width - 2 * padding;
             const chartHeight = height - 2 * padding;
             
@@ -1683,12 +1899,17 @@
                 // Y軸ラベル（動的・単位対応）
                 const value = maxValue - (i / gridSteps) * range;
                 const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                label.setAttribute('x', padding - 22);
+                const labelX = isSmallMobile ? padding - 10 : (isMobile ? padding - 15 : padding - 22);
+                label.setAttribute('x', labelX);
                 label.setAttribute('y', y + 7);
                 label.setAttribute('class', 'axis-label y-axis-label');
                 label.textContent = Math.round(value).toLocaleString() + displayUnit;
                 axisLabels.appendChild(label);
             }
+            
+            // データポイントのサイズ設定
+            const pointRadius = isSmallMobile ? 3 : (isMobile ? 4 : 6);
+            const pointRadiusHover = isSmallMobile ? 5 : (isMobile ? 6 : 9);
             
             // データポイントの描画
             dataPoints.innerHTML = '';
@@ -1714,10 +1935,13 @@
                 }
                 circle.setAttribute('cx', xScale(index));
                 circle.setAttribute('cy', yScale(value));
+                circle.setAttribute('r', pointRadius);
                 circle.setAttribute('class', 'data-point');
                 circle.setAttribute('data-date', session.date);
                 circle.setAttribute('data-result', session.result);
                 circle.setAttribute('data-cumulative', session.cumulative);
+                circle.setAttribute('data-radius', pointRadius);
+                circle.setAttribute('data-radius-hover', pointRadiusHover);
                 dataPoints.appendChild(circle);
             });
             
@@ -1768,14 +1992,15 @@
             xAxisLabels.forEach(label => label.remove());
             
             // 表示データの数に応じて適切な間隔でX軸ラベルを配置
-            const maxLabels = Math.min(10, displayData.length); // 最大10個のラベル
+            const maxLabels = isSmallMobile ? 5 : (isMobile ? 7 : 10); // モバイルでは少なめに
             const labelInterval = Math.max(1, Math.floor(displayData.length / maxLabels));
+            const labelY = height - padding + (isSmallMobile ? 25 : (isMobile ? 30 : 37));
             
             for (let i = 0; i < displayData.length; i += labelInterval) {
                 const x = xScale(i);
                 const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 label.setAttribute('x', x);
-                label.setAttribute('y', height - padding + 37);
+                label.setAttribute('y', labelY);
                 label.setAttribute('class', 'axis-label x-axis-label');
                 label.textContent = displayData[i].date.substring(5); // MM-DD形式
                 axisLabels.appendChild(label);
@@ -1787,7 +2012,7 @@
                 const x = xScale(lastIndex);
                 const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 label.setAttribute('x', x);
-                label.setAttribute('y', height - padding + 37);
+                label.setAttribute('y', labelY);
                 label.setAttribute('class', 'axis-label x-axis-label');
                 label.textContent = displayData[lastIndex].date.substring(5);
                 axisLabels.appendChild(label);
@@ -1820,6 +2045,12 @@
                         const date = this.getAttribute('data-date');
                         const result = parseFloat(this.getAttribute('data-result'));
                         const cumulative = parseFloat(this.getAttribute('data-cumulative'));
+                        const hoverRadius = this.getAttribute('data-radius-hover');
+                        
+                        // ホバー時のサイズ変更
+                        if (hoverRadius) {
+                            this.setAttribute('r', hoverRadius);
+                        }
                         
                         // 該当セッションを検索
                         const session = sessionData.find(s => s.date === date && s.result === result && s.cumulative === cumulative);
@@ -1876,6 +2107,10 @@
                     });
                     
                     newPoint.addEventListener('mouseleave', function() {
+                        const normalRadius = this.getAttribute('data-radius');
+                        if (normalRadius) {
+                            this.setAttribute('r', normalRadius);
+                        }
                         tooltip.style.opacity = '0';
                     });
                 });
@@ -1887,12 +2122,24 @@
             // CSVデータを初期化（埋め込みデータから直接読み込み）
             loadCSVData();
 
-        // テーブルヘッダーのクリックイベントリスナーを追加
+            // テーブルヘッダーのクリックイベントリスナーを追加
             document.querySelectorAll('th.sortable').forEach(th => {
                 th.addEventListener('click', function() {
                     const column = this.dataset.sort;
                     sortData(column);
                 });
+            });
+
+            // リサイズイベントリスナーを追加（モバイルの画面回転などに対応）
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    // グラフを再描画（モバイル環境の検出が更新される）
+                    if (chartState.originalData.length > 0) {
+                        drawLineChart();
+                    }
+                }, 250); // デバウンス処理（250ms待機）
             });
         });
     </script>
